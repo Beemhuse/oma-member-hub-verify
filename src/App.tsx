@@ -1,26 +1,42 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { MemberProvider } from "@/contexts/MemberContext";
+
+import MainLayout from "./components/layout/MainLayout";
+import MembersListPage from "./pages/MembersListPage";
+import AddMemberPage from "./pages/AddMemberPage";
+import MemberDetailPage from "./pages/MemberDetailPage";
+import EditMemberPage from "./pages/EditMemberPage";
+import VerifyIdPage from "./pages/VerifyIdPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <MemberProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<MembersListPage />} />
+              <Route path="/add-member" element={<AddMemberPage />} />
+              <Route path="/members/:id" element={<MemberDetailPage />} />
+              <Route path="/members/:id/edit" element={<EditMemberPage />} />
+              <Route path="/verify" element={<VerifyIdPage />} />
+              <Route path="/verify/:id" element={<VerifyIdPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </MemberProvider>
   </QueryClientProvider>
 );
 
