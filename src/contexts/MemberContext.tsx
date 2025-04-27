@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Member } from '@/types/member';
 import { createMember } from '@/lib/utils/member-utils';
@@ -48,7 +49,7 @@ const initialMembers: Member[] = [
 
 interface MemberContextType {
   members: Member[];
-  addMember: (member: Omit<Member, 'id' | 'membershipId' | 'dateJoined'>) => void;
+  addMember: (member: Omit<Member, 'id' | 'membershipId' | 'dateJoined'>) => Member;
   updateMember: (id: string, member: Partial<Member>) => void;
   deleteMember: (id: string) => void;
   getMember: (id: string) => Member | undefined;
