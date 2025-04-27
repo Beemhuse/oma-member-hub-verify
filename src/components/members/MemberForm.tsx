@@ -65,7 +65,20 @@ const MemberForm: React.FC<MemberFormProps> = ({ defaultValues, isEditing = fals
       updateMember(memberId, data);
       navigate(`/members/${memberId}`);
     } else {
-      const newMember = addMember(data);
+      // Make sure all required fields are present
+      const memberData = {
+        firstName: data.firstName, 
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        status: data.status,
+        dob: data.dob || undefined,
+        occupation: data.occupation || undefined,
+        emergencyContact: data.emergencyContact || undefined,
+      };
+      
+      const newMember = addMember(memberData);
       navigate(`/members/${newMember.id}`);
     }
   };

@@ -69,9 +69,8 @@ const MainLayout: React.FC = () => {
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
           <header className="bg-white border-b px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
-              <SidebarTrigger asChild>
+              <SidebarTrigger>
                 <Button variant="ghost" size="icon" className="mr-2 text-oma-black">
-                  <span className="sr-only">Toggle menu</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -87,6 +86,7 @@ const MainLayout: React.FC = () => {
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <line x1="3" y1="18" x2="21" y2="18" />
                   </svg>
+                  <span className="sr-only">Toggle menu</span>
                 </Button>
               </SidebarTrigger>
               <h1 className="text-xl font-semibold text-gray-800">Member Hub</h1>
