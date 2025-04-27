@@ -1,30 +1,30 @@
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Member } from '@/types/member';
 import { formatDate } from '@/lib/utils/member-utils';
-import { User } from 'lucide-react';
-import JsBarcode from 'jsbarcode';
+import { User, QrCode } from 'lucide-react';
+import QRCode from 'qrcode';
 
 interface MembershipCardProps {
   member: Member;
 }
 
 const MembershipCard: React.FC<MembershipCardProps> = ({ member }) => {
-  const barcodeRef = useRef<SVGSVGElement>(null);
+  const [qrCodeUrl, setQrCodeUrl] = React.useState<string>('');
   
-  useEffect(() => {
-    if (barcodeRef.current) {
-      JsBarcode(barcodeRef.current, member.membershipId, {
-        format: "CODE128",
-        width: 2,
-        height: 50,
-        displayValue: true,
-        background: "transparent",
-        lineColor: "#000",
-      });
-    }
+  React.useEffect(() => {
+    const generateQR = async () => {
+      try {
+        const verifyUrl = `${window.location.origin}/verify/${member.membershipId}`;
+        const qrDataUrl = await QRCode.toDataURL(verifyUrl);
+        setQrCodeUrl(qrDataUrl);
+      } catch (err) {
+        console.error("Error generating QR code:", err);
+      }
+    };
+    generateQR();
   }, [member.membershipId]);
   
   const printCard = () => {
@@ -97,9 +97,13 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ member }) => {
             font-size: 11px;
             color: #666;
           }
-          .barcode-container {
+          .qr-container {
             margin-top: 10px;
             text-align: center;
+          }
+          .qr-container img {
+            width: 80px;
+            height: 80px;
           }
           .verify-text {
             font-size: 9px;
@@ -134,17 +138,14 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ member }) => {
         printWindow.document.write('</div>');
         printWindow.document.write('</div>');
         
-        printWindow.document.write('<div class="barcode-container">');
-        // Clone and add the barcode SVG
-        if (barcodeRef.current) {
-          const barcodeHTML = barcodeRef.current.outerHTML;
-          printWindow.document.write(barcodeHTML);
+        printWindow.document.write('<div class="qr-container">');
+        if (qrCodeUrl) {
+          printWindow.document.write(`<img src="${qrCodeUrl}" alt="QR Code" />`);
         }
         printWindow.document.write('</div>');
         
-        // Add the verification URL
         const verifyUrl = `${window.location.origin}/verify/${member.membershipId}`;
-        printWindow.document.write(`<div class="verify-text">Scan to verify or visit: ${verifyUrl}</div>`);
+        printWindow.document.write(`<div class="verify-text">Scan QR code to verify or visit: ${verifyUrl}</div>`);
         
         printWindow.document.write('</div>');
       }
@@ -166,9 +167,6 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ member }) => {
           <div>
             <h2 className="text-2xl font-bold text-gray-800">OMA</h2>
             <p className="text-sm text-gray-600">MEMBERSHIP CARD</p>
-          </div>
-          <div className="hidden">
-            <svg ref={barcodeRef}></svg>
           </div>
         </div>
         
@@ -193,12 +191,18 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ member }) => {
         </div>
         
         <div className="mt-6 border-t border-gray-200 pt-4">
-          <div className="mx-auto w-full flex justify-center">
-            <svg ref={barcodeRef} className="max-w-full"></svg>
+          <div className="mx-auto w-full flex flex-col items-center">
+            {qrCodeUrl ? (
+              <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
+            ) : (
+              <div className="w-32 h-32 bg-gray-100 flex items-center justify-center">
+                <QrCode className="text-gray-400" size={48} />
+              </div>
+            )}
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Scan to verify or visit: {window.location.origin}/verify/{member.membershipId}
+            </p>
           </div>
-          <p className="text-xs text-gray-500 text-center mt-2">
-            Scan to verify or visit: {window.location.origin}/verify/{member.membershipId}
-          </p>
         </div>
         
         <div className="mt-6 flex justify-end">

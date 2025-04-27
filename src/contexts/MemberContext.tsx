@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Member } from '@/types/member';
 import { createMember } from '@/lib/utils/member-utils';
