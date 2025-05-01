@@ -13,6 +13,9 @@ import MemberDetailPage from "./pages/MemberDetailPage";
 import EditMemberPage from "./pages/EditMemberPage";
 import VerifyIdPage from "./pages/VerifyIdPage";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import TransactionsPage from "./pages/TransactionsPage";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
             <Route element={<MainLayout />}>
               <Route path="/" element={<MembersListPage />} />
               <Route path="/add-member" element={<AddMemberPage />} />
@@ -31,6 +35,8 @@ const App = () => (
               <Route path="/members/:id/edit" element={<EditMemberPage />} />
               <Route path="/verify" element={<VerifyIdPage />} />
               <Route path="/verify/:id" element={<VerifyIdPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
