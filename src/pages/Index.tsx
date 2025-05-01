@@ -1,8 +1,8 @@
 
-import MembersListPage from "./MembersListPage";
+import { Navigate } from "react-router-dom";
 
 const Index = () => {
-  return <MembersListPage />;
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default Index;

@@ -1,20 +1,30 @@
 
 import React, { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { User, Barcode, UserPlus, LogOut, LayoutDashboard, ChartBar } from 'lucide-react';
+import { User, Users, Barcode, UserPlus, LogOut, LayoutDashboard, ChartBar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
     const auth = localStorage.getItem('isAuthenticated');
-    setIsAdmin(auth === 'true');
-  }, []);
+    if (auth !== 'true' && location.pathname !== '/login') {
+      toast({
+        title: "Authentication required",
+        description: "Please login to access this page",
+        variant: "destructive",
+      });
+      navigate('/login');
+    } else {
+      setIsAdmin(auth === 'true');
+    }
+  }, [location.pathname, navigate, toast]);
   
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -24,6 +34,10 @@ const MainLayout: React.FC = () => {
     });
     navigate('/login');
   };
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <SidebarProvider>
@@ -37,23 +51,8 @@ const MainLayout: React.FC = () => {
             <SidebarGroup>
               <SidebarGroupContent>
                 <div className="space-y-1 py-2">
-                  {isAdmin && (
-                    <NavLink 
-                      to="/dashboard" 
-                      className={({ isActive }) => 
-                        `flex items-center gap-3 px-3 py-2 rounded-md ${
-                          isActive 
-                            ? 'bg-oma-gold text-black font-medium' 
-                            : 'text-oma-gold hover:bg-oma-gold/10'
-                        }`
-                      }
-                    >
-                      <LayoutDashboard size={18} />
-                      <span>Dashboard</span>
-                    </NavLink>
-                  )}
                   <NavLink 
-                    to="/" 
+                    to="/dashboard" 
                     className={({ isActive }) => 
                       `flex items-center gap-3 px-3 py-2 rounded-md ${
                         isActive 
@@ -62,7 +61,20 @@ const MainLayout: React.FC = () => {
                       }`
                     }
                   >
-                    <User size={18} />
+                    <LayoutDashboard size={18} />
+                    <span>Dashboard</span>
+                  </NavLink>
+                  <NavLink 
+                    to="/members" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2 rounded-md ${
+                        isActive 
+                          ? 'bg-oma-gold text-black font-medium' 
+                          : 'text-oma-gold hover:bg-oma-gold/10'
+                      }`
+                    }
+                  >
+                    <Users size={18} />
                     <span>Members</span>
                   </NavLink>
                   <NavLink 
@@ -91,38 +103,34 @@ const MainLayout: React.FC = () => {
                     <Barcode size={18} />
                     <span>Verify ID</span>
                   </NavLink>
-                  {isAdmin && (
-                    <NavLink 
-                      to="/transactions" 
-                      className={({ isActive }) => 
-                        `flex items-center gap-3 px-3 py-2 rounded-md ${
-                          isActive 
-                            ? 'bg-oma-gold text-black font-medium' 
-                            : 'text-oma-gold hover:bg-oma-gold/10'
-                        }`
-                      }
-                    >
-                      <ChartBar size={18} />
-                      <span>Transactions</span>
-                    </NavLink>
-                  )}
+                  <NavLink 
+                    to="/transactions" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2 rounded-md ${
+                        isActive 
+                          ? 'bg-oma-gold text-black font-medium' 
+                          : 'text-oma-gold hover:bg-oma-gold/10'
+                      }`
+                    }
+                  >
+                    <ChartBar size={18} />
+                    <span>Transactions</span>
+                  </NavLink>
                 </div>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
           <div className="mt-auto">
-            {isAdmin && (
-              <div className="px-3 py-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                  onClick={handleLogout}
-                >
-                  <LogOut size={18} className="mr-2" />
-                  Logout
-                </Button>
-              </div>
-            )}
+            <div className="px-3 py-2">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} className="mr-2" />
+                Logout
+              </Button>
+            </div>
             <div className="p-4 border-t border-oma-gold/30">
               <p className="text-xs text-oma-gold/70 mb-2">© 2025 OMA Member Hub</p>
             </div>
@@ -155,13 +163,11 @@ const MainLayout: React.FC = () => {
               <h1 className="text-xl font-semibold text-gray-800">Member Hub</h1>
             </div>
             
-            {isAdmin && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
-                  Admin Mode
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                Admin Mode
+              </span>
+            </div>
           </header>
           
           <main className="flex-1 overflow-auto bg-gray-50 p-4 md:p-6">
