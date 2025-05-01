@@ -14,7 +14,7 @@ import {
   ChartTooltip, 
   ChartTooltipContent 
 } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { Users, UserPlus, UserCheck, UserX } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
@@ -43,9 +43,9 @@ const DashboardPage: React.FC = () => {
 
   // Data for status chart
   const statusChartData = [
-    { name: 'Active', value: activeMembers },
-    { name: 'Pending', value: pendingMembers },
-    { name: 'Inactive', value: inactiveMembers },
+    { name: 'Active', value: activeMembers, color: '#10B981' },
+    { name: 'Pending', value: pendingMembers, color: '#F59E0B' },
+    { name: 'Inactive', value: inactiveMembers, color: '#EF4444' },
   ];
 
   // Mock data for monthly registrations
@@ -140,22 +140,32 @@ const DashboardPage: React.FC = () => {
           </CardHeader>
           <CardContent className="h-[300px]">
             <ChartContainer config={chartConfig}>
-              <BarChart data={statusChartData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Bar 
-                  dataKey="value" 
-                  name="status"
-                  fill={(entry) => {
-                    if (entry.name === 'Active') return chartConfig.active.color;
-                    if (entry.name === 'Pending') return chartConfig.pending.color;
-                    return chartConfig.inactive.color;
-                  }}
-                />
-                <ChartTooltip>
-                  <ChartTooltipContent />
-                </ChartTooltip>
-              </BarChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statusChartData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Bar 
+                    dataKey="value" 
+                    name="status"
+                    fill="#10B981"
+                    fillOpacity={0.8}
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="p-2 bg-white border shadow rounded">
+                            <p className="font-medium">{data.name}</p>
+                            <p>Count: {data.value}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -167,17 +177,30 @@ const DashboardPage: React.FC = () => {
           </CardHeader>
           <CardContent className="h-[300px]">
             <ChartContainer config={chartConfig}>
-              <BarChart data={mockMonthlyData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Bar 
-                  dataKey="value" 
-                  fill={chartConfig.registrations.color} 
-                />
-                <ChartTooltip>
-                  <ChartTooltipContent />
-                </ChartTooltip>
-              </BarChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={mockMonthlyData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Bar 
+                    dataKey="value" 
+                    fill={chartConfig.registrations.color} 
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="p-2 bg-white border shadow rounded">
+                            <p className="font-medium">{data.name}</p>
+                            <p>Registrations: {data.value}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
