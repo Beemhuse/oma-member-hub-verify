@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { useMemberContext } from '@/contexts/MemberContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,44 +9,87 @@ import { User, Mail, Phone, MapPin, Calendar, Briefcase, AlertCircle, Pencil } f
 import MembershipCard from '@/components/members/MembershipCard';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useApiMutation, useApiQuery } from '@/hooks/useApi';
+import { ICard, Member, MemberDetails } from '@/types/member';
+import { toast } from '@/hooks/use-toast';
 
+const getBadgeColor = (status: string) => {
+  switch(status) {
+    case 'active':
+      return 'bg-oma-green text-white';
+    case 'inactive':
+      return 'bg-gray-400 text-white';
+    case 'pending':
+      return 'bg-yellow-500 text-white';
+    default:
+      return 'bg-gray-400';
+  }
+};
 const MemberDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { getMember, deleteMember } = useMemberContext();
+  // const { getMember, deleteMember } = useMemberContext();
   const navigate = useNavigate();
-  
-  const member = id ? getMember(id) : undefined;
-  
-  if (!member) {
-    return <Navigate to="/not-found" />;
-  }
-  
-  const handleDelete = () => {
-    deleteMember(member.id);
-    navigate('/');
-  };
-  
-  const getBadgeColor = (status: typeof member.status) => {
-    switch(status) {
-      case 'active':
-        return 'bg-oma-green text-white';
-      case 'inactive':
-        return 'bg-gray-400 text-white';
-      case 'pending':
-        return 'bg-yellow-500 text-white';
-      default:
-        return 'bg-gray-400';
-    }
-  };
+  const { data, isLoading } = useApiQuery<MemberDetails>({
+    url: `/api/members/${id}`,
+  });
+console.log(data)
+
+  const { mutate: generateId, isMutating } = useApiMutation({
+  method: "POST",
+  url: `/api/members/${id}/generate-card`,
+  onSuccess: (data) => {
+    console.log(data)
+    toast({
+      title: "Successful",
+      description: "Id generated!",
+    });
+    // navigate("/dashboard");
+  },
+  onError: (error) => {
+    toast({
+      title: "Failed",
+      description: "Retry",
+      variant: "destructive",
+    });
+  },
+});
+  const { mutate: deleteMember, isMutating: isDeleting } = useApiMutation({
+  method: "DELETE",
+  url: `/api/members/${id}/`,
+  onSuccess: (data) => {
+    console.log(data)
+    toast({
+      title: "Successful",
+      description: "User Deleted!",
+    });
+    // navigate("/dashboard");
+  },
+  onError: (error) => {
+    toast({
+      title: "Failed",
+      description: "Retry",
+      variant: "destructive",
+    });
+  },
+});
+  // const member = data.member
+  console.log(data?.member)
+  // if (!member) {
+  //   return <Navigate to="/not-found" />;
+  // }
+  // if (isLoading) {
+  //   return  null
+  // }
+ 
   
   return (
     <div className="container mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-semibold">
-            {member.firstName} {member.lastName}
+            {data?.member.firstName} {data?.member.lastName}
           </h1>
-          <p className="text-gray-500">Member ID: {member.membershipId}</p>
+          <p className="text-gray-500">Member ID: {data?.member.membershipId}</p>
         </div>
         
         <div className="flex items-center gap-2">
@@ -66,7 +108,8 @@ const MemberDetailPage: React.FC = () => {
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button className="bg-oma-red hover:bg-oma-red/90 text-white">
+              <Button
+               className="bg-oma-red hover:bg-oma-red/90 text-white">
                 Delete
               </Button>
             </AlertDialogTrigger>
@@ -75,12 +118,17 @@ const MemberDetailPage: React.FC = () => {
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete the member 
-                  <strong> {member.firstName} {member.lastName}</strong> and remove their data from the system.
+                  <strong> {data?.member.firstName} {data?.member.lastName}</strong> and remove their data from the system.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-oma-red hover:bg-oma-red/90 text-white">
+                <AlertDialogAction 
+                // onClick={handleDelete}
+                onClick={() => {
+                  deleteMember()
+                }}
+                 className="bg-oma-red hover:bg-oma-red/90 text-white">
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -101,8 +149,8 @@ const MemberDetailPage: React.FC = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Personal Information</CardTitle>
-                  <Badge className={getBadgeColor(member.status)}>
-                    {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                  <Badge className={getBadgeColor(data?.member.membershipStatus)}>
+                    {/* {data?.member.status?.charAt(0)?.toUpperCase() + data?.member?.status?.slice(1)} */}
                   </Badge>
                 </div>
               </CardHeader>
@@ -112,7 +160,7 @@ const MemberDetailPage: React.FC = () => {
                     <User className="mt-1 h-4 w-4 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Full Name</p>
-                      <p className="font-medium">{member.firstName} {member.lastName}</p>
+                      <p className="font-medium">{data?.member.firstName} {data?.member.lastName}</p>
                     </div>
                   </div>
                   
@@ -120,7 +168,7 @@ const MemberDetailPage: React.FC = () => {
                     <Mail className="mt-1 h-4 w-4 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium">{member.email}</p>
+                      <p className="font-medium">{data?.member.email}</p>
                     </div>
                   </div>
                   
@@ -128,7 +176,7 @@ const MemberDetailPage: React.FC = () => {
                     <Phone className="mt-1 h-4 w-4 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Phone</p>
-                      <p className="font-medium">{member.phone}</p>
+                      <p className="font-medium">{data?.member.phone}</p>
                     </div>
                   </div>
                   
@@ -136,36 +184,36 @@ const MemberDetailPage: React.FC = () => {
                     <MapPin className="mt-1 h-4 w-4 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Address</p>
-                      <p className="font-medium">{member.address}</p>
+                      <p className="font-medium">{data?.member.address}</p>
                     </div>
                   </div>
                   
-                  {member.dob && (
+                  {data?.member.dateOfBirth && (
                     <div className="flex items-start gap-2">
                       <Calendar className="mt-1 h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Date of Birth</p>
-                        <p className="font-medium">{formatDate(member.dob)}</p>
+                        <p className="font-medium">{formatDate(data?.member.dateOfBirth)}</p>
                       </div>
                     </div>
                   )}
                   
-                  {member.occupation && (
+                  {data?.member.occupation && (
                     <div className="flex items-start gap-2">
                       <Briefcase className="mt-1 h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Occupation</p>
-                        <p className="font-medium">{member.occupation}</p>
+                        <p className="font-medium">{data?.member.occupation}</p>
                       </div>
                     </div>
                   )}
                   
-                  {member.emergencyContact && (
+                  {data?.member.emergencyContact && (
                     <div className="flex items-start gap-2">
                       <AlertCircle className="mt-1 h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Emergency Contact</p>
-                        <p className="font-medium">{member.emergencyContact}</p>
+                        <p className="font-medium">{data?.member.emergencyContact}</p>
                       </div>
                     </div>
                   )}
@@ -181,18 +229,19 @@ const MemberDetailPage: React.FC = () => {
                 <div className="space-y-6">
                   <div>
                     <p className="text-sm text-gray-500">Membership ID</p>
-                    <p className="font-medium">{member.membershipId}</p>
+                    <p className="font-medium">{data?.member.membershipId}</p>
                   </div>
                   
                   <div>
                     <p className="text-sm text-gray-500">Date Joined</p>
-                    <p className="font-medium">{formatDate(member.dateJoined)}</p>
+                    <p className="font-medium">{formatDate(data?.member._createdAt)}</p>
                   </div>
                   
                   <div>
                     <p className="text-sm text-gray-500">Status</p>
-                    <Badge className={getBadgeColor(member.status)}>
-                      {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                    <Badge className={getBadgeColor(data?.member.membershipStatus)}>
+                      {data?.member.membershipStatus}
+                      {/* {data?.member.status.charAt(0).toUpperCase() + data?.member.status.slice(1)} */}
                     </Badge>
                   </div>
                 </div>
@@ -202,9 +251,19 @@ const MemberDetailPage: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="idcard">
-          <div className="max-w-lg mx-auto">
-            <MembershipCard member={member} />
-          </div>
+        <div className="max-w-lg mx-auto flex flex-col items-center gap-6">
+    <div className="w-full flex justify-center">
+      <Button 
+        className="bg-oma-blue hover:bg-oma-blue/90 text-black"
+        onClick={() => {
+          generateId()
+        }}
+      >
+        Generate ID Card
+      </Button>
+    </div>
+    <MembershipCard member={data?.member} card={data?.card} />
+  </div>
         </TabsContent>
       </Tabs>
     </div>

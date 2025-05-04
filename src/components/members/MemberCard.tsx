@@ -14,8 +14,7 @@ interface MemberCardProps {
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   const navigate = useNavigate();
-  
-  const getBadgeColor = (status: Member['status']) => {
+  const getBadgeColor = (status: Member['membershipStatus']) => {
     switch(status) {
       case 'active':
         return 'bg-oma-green text-white hover:bg-oma-green/90';
@@ -52,8 +51,8 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
                 <p className="text-sm text-gray-500">{member.email}</p>
               </div>
             </div>
-            <Badge className={getBadgeColor(member.status)}>
-              {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+            <Badge className={getBadgeColor(member.membershipStatus)}>
+              {member.membershipStatus?.charAt(0).toUpperCase() + member?.membershipStatus?.slice(1)}
             </Badge>
           </div>
           
@@ -64,7 +63,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Joined:</span>
-              <span className="text-gray-700">{formatDate(member.dateJoined)}</span>
+              <span className="text-gray-700">{formatDate(member._createdAt)}</span>
             </div>
           </div>
           
@@ -72,9 +71,9 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
             <Button 
               variant="ghost" 
               className="text-oma-gold hover:text-oma-gold hover:bg-oma-gold/10"
-              onClick={() => navigate(`/members/${member.id}`)}
+              onClick={() => navigate(`/members/${member._id}`)}
             >
-              View Details
+              View Detail
             </Button>
           </div>
         </div>

@@ -1,19 +1,32 @@
 
 export interface Member {
-  id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   address: string;
   membershipId: string;
-  dateJoined: string;
-  status: 'active' | 'inactive' | 'pending';
+  _createdAt: string;
+  membershipStatus: 'active' | 'inactive' | 'pending';
   photo?: string;
-  dob?: string;
+  dateOfBirth?: string;
   occupation?: string;
   emergencyContact?: string;
   role?: 'member' | 'admin' | 'staff' | 'executive';
+  qrCode: string;
+}
+export interface ICard {
+  _id: string,
+  cardId: string,
+  fullName: string,
+  email: string,
+  membershipStatus: boolean;
+  qrCodeUrl: string
+}
+export interface MemberDetails {
+  member: Member,
+  card: ICard,
 }
 
 export interface Transaction {

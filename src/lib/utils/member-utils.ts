@@ -1,6 +1,5 @@
 
 import { Member } from '@/types/member';
-import { v4 as uuidv4 } from 'uuid';
 
 // Generate a unique membership ID with format OMA-XXXXXX
 export const generateMembershipId = (): string => {
@@ -31,9 +30,8 @@ export const filterMembers = (members: Member[], searchTerm: string): Member[] =
 // Create a new member
 export const createMember = (memberData: Omit<Member, 'id' | 'membershipId' | 'dateJoined'>): Member => {
   return {
-    id: uuidv4(),
     membershipId: generateMembershipId(),
-    dateJoined: new Date().toISOString(),
+    _createdAt: new Date().toISOString(),
     ...memberData
   };
 };

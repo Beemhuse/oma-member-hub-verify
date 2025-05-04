@@ -5,24 +5,25 @@ import QRCode from 'qrcode';
 
 interface MembershipQRCodeProps {
   membershipId: string;
+  qrCodeUrl: string;
 }
 
-export const MembershipQRCode: React.FC<MembershipQRCodeProps> = ({ membershipId }) => {
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+export const MembershipQRCode: React.FC<MembershipQRCodeProps> = ({ membershipId, qrCodeUrl }) => {
+  // const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
-  useEffect(() => {
-    const generateQR = async () => {
-      try {
-        const verifyUrl = `${window.location.origin}/verify/${membershipId}`;
-        const qrDataUrl = await QRCode.toDataURL(verifyUrl);
-        setQrCodeUrl(qrDataUrl);
-      } catch (err) {
-        console.error("Error generating QR code:", err);
-      }
-    };
-    generateQR();
-  }, [membershipId]);
-
+  // useEffect(() => {
+  //   const generateQR = async () => {
+  //     try {
+  //       const verifyUrl = `${window.location.origin}/verify/${membershipId}`;
+  //       const qrDataUrl = await QRCode.toDataURL(verifyUrl);
+  //       setQrCodeUrl(qrDataUrl);
+  //     } catch (err) {
+  //       console.error("Error generating QR code:", err);
+  //     }
+  //   };
+  //   generateQR();
+  // }, [membershipId]);
+console.log(qrCodeUrl)
   return (
     <div className="mt-6 border-t border-gray-200 pt-4">
       <div className="mx-auto w-full flex flex-col items-center">

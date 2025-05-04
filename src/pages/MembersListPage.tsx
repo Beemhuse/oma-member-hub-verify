@@ -7,9 +7,17 @@ import { Button } from '@/components/ui/button';
 import { UserPlus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { filterMembers } from '@/lib/utils/member-utils';
+import { useApiQuery } from '@/hooks/useApi';
+import { Member } from '@/types/member';
 
 const MembersListPage: React.FC = () => {
-  const { members } = useMemberContext();
+
+  
+  const { data: members, isLoading } = useApiQuery<Member[]>({
+    url: '/api/members',
+  });
+  
+  console.log(members)
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -18,7 +26,7 @@ const MembersListPage: React.FC = () => {
   return (
     <div className="container mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-semibold">Members ({members.length})</h1>
+        <h1 className="text-2xl font-semibold">Members ({members?.length})</h1>
         
         <div className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
           <div className="relative flex-grow">
@@ -40,7 +48,7 @@ const MembersListPage: React.FC = () => {
         </div>
       </div>
       
-      {filteredMembers.length === 0 ? (
+      {filteredMembers?.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-6 text-center">
           {searchTerm ? (
             <div>
@@ -67,8 +75,8 @@ const MembersListPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredMembers.map((member) => (
-            <MemberCard key={member.id} member={member} />
+          {filteredMembers?.map((member) => (
+            <MemberCard key={member._id} member={member} />
           ))}
         </div>
       )}

@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useMemberContext } from '@/contexts/MemberContext';
 import { useNavigate } from 'react-router-dom';
 import { Member } from '@/types/member';
+import { useApiMutation } from '@/hooks/useApi';
+import { toast } from '@/hooks/use-toast';
 
 // Schema for form validation
 const formSchema = z.object({
@@ -29,12 +31,41 @@ const formSchema = z.object({
   address: z.string().min(5, { message: 'Address must be at least 5 characters' }),
   status: z.enum(['active', 'inactive', 'pending']),
   dob: z.string().optional(),
+  role: z.string().optional(),
   occupation: z.string().optional(),
   emergencyContact: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
+interface MemberRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  membershipStatus: 'active' | 'inactive' | 'pending';
+  dateOfBirth?: string; // Optional field
+  occupation?: string; // Optional field
+  emergencyContact?: string; // Optional field
+  // If your registration endpoint requires password (though not shown in form)
+  password?: string;
+}
+interface MemberResponse {
+  id: string; // Assuming the API returns the member ID
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  membershipStatus: 'active' | 'inactive' | 'pending';
+  dateOfBirth?: string;
+  occupation?: string;
+  emergencyContact?: string;
+  token: string; // As shown in your onSuccess handler
+  // Any other fields the API might return
+  _createdAt?: string;
+  _updatedAt?: string;
+}
 interface MemberFormProps {
   defaultValues?: Partial<Member>;
   isEditing?: boolean;
@@ -42,9 +73,46 @@ interface MemberFormProps {
 }
 
 const MemberForm: React.FC<MemberFormProps> = ({ defaultValues, isEditing = false, memberId }) => {
-  const { addMember, updateMember } = useMemberContext();
+  // const { addMember, updateMember } = useMemberContext();
   const navigate = useNavigate();
-  
+  const { mutate: createMember, isMutating } = useApiMutation<
+    MemberResponse,
+    MemberRequest
+  >({
+    method: "POST",
+    url: "/api/members",
+    onSuccess: (data) => {
+      toast({
+        title: "Member created successfully",
+        // description: "Welcome back!",
+      });
+      // navigate("/dashboard");
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed",
+        description: "Please retry",
+        variant: "destructive",
+      });
+    },
+  });
+const onSubmit = (data: FormValues) => {
+  // Transform data to match API expectations
+  const apiData = {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    address: data.address,
+    role: data.role,
+    membershipStatus: data.status,
+    dateOfBirth: data.dob || undefined,
+    occupation: data.occupation || undefined,
+    emergencyContact: data.emergencyContact || undefined,
+  };
+
+  createMember(apiData);
+};
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
@@ -53,6 +121,7 @@ const MemberForm: React.FC<MemberFormProps> = ({ defaultValues, isEditing = fals
       email: '',
       phone: '',
       address: '',
+      role: '',
       status: 'active' as const,
       dob: '',
       occupation: '',
@@ -60,28 +129,28 @@ const MemberForm: React.FC<MemberFormProps> = ({ defaultValues, isEditing = fals
     },
   });
   
-  const onSubmit = (data: FormValues) => {
-    if (isEditing && memberId) {
-      updateMember(memberId, data);
-      navigate(`/members/${memberId}`);
-    } else {
-      // Make sure all required fields are present
-      const memberData = {
-        firstName: data.firstName, 
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        status: data.status,
-        dob: data.dob || undefined,
-        occupation: data.occupation || undefined,
-        emergencyContact: data.emergencyContact || undefined,
-      };
+  // const onSubmit = (data: FormValues) => {
+  //   if (isEditing && memberId) {
+  //     updateMember(memberId, data);
+  //     navigate(`/members/${memberId}`);
+  //   } else {
+  //     // Make sure all required fields are present
+  //     const memberData = {
+  //       firstName: data.firstName, 
+  //       lastName: data.lastName,
+  //       email: data.email,
+  //       phone: data.phone,
+  //       address: data.address,
+  //       status: data.status,
+  //       dob: data.dob || undefined,
+  //       occupation: data.occupation || undefined,
+  //       emergencyContact: data.emergencyContact || undefined,
+  //     };
       
-      const newMember = addMember(memberData);
-      navigate(`/members/${newMember.id}`);
-    }
-  };
+  //     const newMember = addMember(memberData);
+  //     navigate(`/members/${newMember.id}`);
+  //   }
+  // };
   
   return (
     <Card className="w-full max-w-2xl mx-auto">
