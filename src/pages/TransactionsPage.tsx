@@ -68,13 +68,13 @@ const TransactionsPage: React.FC = () => {
       currentFilter === "all" || transaction?.status === currentFilter;
 
     // Type filter
-    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+    const matchesType = typeFilter === "all" || transaction?.type === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const totalAmount = filteredTransactions.reduce((sum, transaction) => {
-    return transaction.status === "completed" ? sum + transaction.amount : sum;
+  const totalAmount = filteredTransactions?.reduce((sum, transaction) => {
+    return transaction?.status === "completed" ? sum + transaction?.amount : sum;
   }, 0);
 
   return (
