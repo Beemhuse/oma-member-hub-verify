@@ -37,8 +37,7 @@ const App = () => (
               <Route path="/add-member" element={<AddMemberPage />} />
               <Route path="/members/:id" element={<MemberDetailPage />} />
               <Route path="/members/:id/edit" element={<EditMemberPage />} />
-              <Route path="/verify" element={<VerifyIdPage />} />
-              <Route path="/verify/:id" element={<VerifyIdPage />} />
+              <Route path="/verify/" element={<VerifyIdPage />} />
               <Route path="/transactions" element={<TransactionsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

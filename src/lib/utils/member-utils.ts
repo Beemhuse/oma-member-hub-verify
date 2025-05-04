@@ -17,13 +17,13 @@ export const formatDate = (date: string | Date): string => {
 export const filterMembers = (members: Member[], searchTerm: string): Member[] => {
   if (!searchTerm) return members;
   
-  const lowerCaseSearchTerm = searchTerm.toLowerCase();
+  const lowerCaseSearchTerm = searchTerm?.toLowerCase();
   
   return members.filter(member => 
-    member.firstName.toLowerCase().includes(lowerCaseSearchTerm) ||
-    member.lastName.toLowerCase().includes(lowerCaseSearchTerm) ||
-    member.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-    member.membershipId.toLowerCase().includes(lowerCaseSearchTerm)
+    member?.firstName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member?.lastName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member?.email?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member?.membershipId?.toLowerCase()?.includes(lowerCaseSearchTerm)
   );
 };
 

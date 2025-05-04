@@ -29,8 +29,8 @@ const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   phone: z.string().min(6, { message: 'Please enter a valid phone number' }),
   address: z.string().min(5, { message: 'Address must be at least 5 characters' }),
-  status: z.enum(['active', 'inactive', 'pending']),
-  dob: z.string().optional(),
+  membershipStatus: z.enum(['Active', 'Inactive', 'Pending']),
+  dateOfBirth: z.string().optional(),
   role: z.string().optional(),
   occupation: z.string().optional(),
   emergencyContact: z.string().optional(),
@@ -43,21 +43,19 @@ interface MemberRequest {
   email: string;
   phone: string;
   address: string;
-  membershipStatus: 'active' | 'inactive' | 'pending';
-  dateOfBirth?: string; // Optional field
-  occupation?: string; // Optional field
-  emergencyContact?: string; // Optional field
-  // If your registration endpoint requires password (though not shown in form)
-  password?: string;
+  membershipStatus: 'Active' | 'Inactive' | 'Pending';
+  dateOfBirth: string; // Optional field
+  occupation: string; // Optional field
+  emergencyContact: string; // Optional field
 }
 interface MemberResponse {
-  id: string; // Assuming the API returns the member ID
+  _id: string; // Assuming the API returns the member ID
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   address: string;
-  membershipStatus: 'active' | 'inactive' | 'pending';
+  membershipStatus: 'Active' | 'Inactive' | 'Pending';
   dateOfBirth?: string;
   occupation?: string;
   emergencyContact?: string;
@@ -75,27 +73,27 @@ interface MemberFormProps {
 const MemberForm: React.FC<MemberFormProps> = ({ defaultValues, isEditing = false, memberId }) => {
   // const { addMember, updateMember } = useMemberContext();
   const navigate = useNavigate();
-  const { mutate: createMember, isMutating } = useApiMutation<
-    MemberResponse,
-    MemberRequest
-  >({
-    method: "POST",
-    url: "/api/members",
-    onSuccess: (data) => {
-      toast({
-        title: "Member created successfully",
-        // description: "Welcome back!",
-      });
-      // navigate("/dashboard");
-    },
-    onError: (error) => {
-      toast({
-        title: "Failed",
-        description: "Please retry",
-        variant: "destructive",
-      });
-    },
-  });
+ // Create or update mutation
+ const { mutate: createOrUpdateMember, isMutating } = useApiMutation<
+ MemberResponse,
+ MemberRequest
+>({
+ method: isEditing ? "PATCH" : "POST",
+ url: isEditing ? `/api/members/${memberId}` : "/api/members",
+ onSuccess: (data) => {
+   toast({
+     title: isEditing ? "Member updated successfully" : "Member created successfully",
+   });
+ },
+ onError: (error) => {
+   toast({
+     title: "Error",
+     description: error.message || (isEditing ? "Failed to update member" : "Failed to create member"),
+     variant: "destructive",
+   });
+ },
+});
+
 const onSubmit = (data: FormValues) => {
   // Transform data to match API expectations
   const apiData = {
@@ -105,13 +103,12 @@ const onSubmit = (data: FormValues) => {
     phone: data.phone,
     address: data.address,
     role: data.role,
-    membershipStatus: data.status,
-    dateOfBirth: data.dob || undefined,
+    membershipStatus: data.membershipStatus,
+    dateOfBirth: data.dateOfBirth || undefined,
     occupation: data.occupation || undefined,
     emergencyContact: data.emergencyContact || undefined,
   };
-
-  createMember(apiData);
+  createOrUpdateMember(apiData);
 };
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -122,36 +119,14 @@ const onSubmit = (data: FormValues) => {
       phone: '',
       address: '',
       role: '',
-      status: 'active' as const,
-      dob: '',
+      membershipStatus: 'Active',
+      dateOfBirth: '',
       occupation: '',
       emergencyContact: '',
     },
   });
   
-  // const onSubmit = (data: FormValues) => {
-  //   if (isEditing && memberId) {
-  //     updateMember(memberId, data);
-  //     navigate(`/members/${memberId}`);
-  //   } else {
-  //     // Make sure all required fields are present
-  //     const memberData = {
-  //       firstName: data.firstName, 
-  //       lastName: data.lastName,
-  //       email: data.email,
-  //       phone: data.phone,
-  //       address: data.address,
-  //       status: data.status,
-  //       dob: data.dob || undefined,
-  //       occupation: data.occupation || undefined,
-  //       emergencyContact: data.emergencyContact || undefined,
-  //     };
-      
-  //     const newMember = addMember(memberData);
-  //     navigate(`/members/${newMember.id}`);
-  //   }
-  // };
-  
+ 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
@@ -257,7 +232,7 @@ const onSubmit = (data: FormValues) => {
               
               <FormField
                 control={form.control}
-                name="dob"
+                name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date of Birth</FormLabel>
@@ -286,7 +261,7 @@ const onSubmit = (data: FormValues) => {
             
             <FormField
               control={form.control}
-              name="status"
+              name="membershipStatus"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Membership Status</FormLabel>
@@ -297,13 +272,38 @@ const onSubmit = (data: FormValues) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
                     The current status of this member's account.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Membership Role</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="staff">Staff</SelectItem>
+                      <SelectItem value="executive">Executive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    The current role of this member's account.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -318,7 +318,7 @@ const onSubmit = (data: FormValues) => {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-oma-green hover:bg-oma-green/90">
+              <Button  type="submit" className="bg-oma-green hover:bg-oma-green/90">
                 {isEditing ? 'Update Member' : 'Add Member'}
               </Button>
             </div>

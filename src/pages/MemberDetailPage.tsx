@@ -15,11 +15,11 @@ import { toast } from '@/hooks/use-toast';
 
 const getBadgeColor = (status: string) => {
   switch(status) {
-    case 'active':
+    case 'Active':
       return 'bg-oma-green text-white';
-    case 'inactive':
+    case 'Inactive':
       return 'bg-gray-400 text-white';
-    case 'pending':
+    case 'Pending':
       return 'bg-yellow-500 text-white';
     default:
       return 'bg-gray-400';
@@ -87,15 +87,15 @@ console.log(data)
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-semibold">
-            {data?.member.firstName} {data?.member.lastName}
+            {data?.member?.firstName} {data?.member?.lastName}
           </h1>
-          <p className="text-gray-500">Member ID: {data?.member.membershipId}</p>
+          <p className="text-gray-500">Member ID: {data?.card?.cardId ?? "Not Available"}</p>
         </div>
         
         <div className="flex items-center gap-2">
           <Button 
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/members')}
           >
             Back to List
           </Button>
@@ -229,7 +229,7 @@ console.log(data)
                 <div className="space-y-6">
                   <div>
                     <p className="text-sm text-gray-500">Membership ID</p>
-                    <p className="font-medium">{data?.member.membershipId}</p>
+                    <p className="font-medium">{data?.card?.cardId ?? "Not Available"}</p>
                   </div>
                   
                   <div>

@@ -8,7 +8,7 @@ export interface Member {
   address: string;
   membershipId: string;
   _createdAt: string;
-  membershipStatus: 'active' | 'inactive' | 'pending';
+  membershipStatus: 'Active' | 'Inactive' | 'Pending';
   photo?: string;
   dateOfBirth?: string;
   occupation?: string;

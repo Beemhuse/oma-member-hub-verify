@@ -1,55 +1,113 @@
-
-import React, { useState } from 'react';
-import { useMemberContext } from '@/contexts/MemberContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Barcode, CheckCircle2, XCircle } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils/member-utils';
+import { toast } from '@/hooks/use-toast';
+import { useApiMutation } from '@/hooks/useApi';
+
+interface Member {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  membershipId: string;
+  membershipStatus: 'active' | 'inactive' | 'pending' | 'suspended';
+  _createdAt: string;
+  // Add other member fields as needed
+}
+
+interface CardData {
+  _id: string;
+  cardId: string;
+  member: Member;
+  isValid: boolean;
+  expiryDate: string;
+  issueDate: string;
+  // Add other card fields as needed
+}
+
+interface VerificationResponse {
+  isValid: boolean;
+  card?: CardData;
+  error?: string;
+}
 
 const VerifyIdPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
-  const { getMemberByMembershipId } = useMemberContext();
   const navigate = useNavigate();
   const [membershipIdInput, setMembershipIdInput] = useState(id || '');
-  const [verificationResult, setVerificationResult] = useState<{ verified: boolean; member?: ReturnType<typeof getMemberByMembershipId> } | null>(null);
-  
+  const [verificationResult, setVerificationResult] = useState<VerificationResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { mutate: verifyUser } = useApiMutation<VerificationResponse, void>({
+    method: "GET",
+    url: `/api/verify-card/${id ?? membershipIdInput}`,
+    onSuccess: (data) => {
+      setVerificationResult(data);
+      if (data.isValid) {
+        toast({
+          title: "Verified successfully",
+          description: `Member ${data.card?.member.firstName} ${data.card?.member.lastName} is verified`,
+        });
+      } else {
+        toast({
+          title: "Verification failed",
+          description: data.error || "Invalid membership ID",
+          variant: "destructive",
+        });
+      }
+      setIsLoading(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setVerificationResult({
+        isValid: false,
+        error: error.message
+      });
+      setIsLoading(false);
+    },
+  });
+  const handleVerify = useCallback(()=>{
+    if (!membershipIdInput && !id) return;
+    
+    setIsLoading(true);
+    verifyUser();
+   
+ }, [id, membershipIdInput, verifyUser])
+
+
   // If ID is provided in URL, verify immediately
-  React.useEffect(() => {
+  useEffect(() => {
     if (id) {
       handleVerify();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-  
-  const handleVerify = () => {
-    const membershipIdToVerify = id || membershipIdInput;
-    if (!membershipIdToVerify) return;
-    
-    const member = getMemberByMembershipId(membershipIdToVerify);
-    setVerificationResult({
-      verified: !!member,
-      member
-    });
-  };
-  
+  }, [handleVerify, id]);
+
+
   const getBadgeColor = (status?: string) => {
-    switch(status) {
+    switch(status?.toLowerCase()) {
       case 'active':
-        return 'bg-oma-green text-white';
+        return 'bg-green-500 text-white';
       case 'inactive':
-        return 'bg-gray-400 text-white';
+        return 'bg-gray-500 text-white';
       case 'pending':
         return 'bg-yellow-500 text-white';
+      case 'suspended':
+        return 'bg-red-500 text-white';
       default:
-        return 'bg-gray-400';
+        return 'bg-gray-500 text-white';
     }
   };
-  
+
   return (
-    <div className="container mx-auto max-w-2xl">
+    <div className="container mx-auto max-w-2xl py-6">
       <h1 className="text-2xl font-semibold mb-6">Verify Membership ID</h1>
       
       <Card>
@@ -61,31 +119,41 @@ const VerifyIdPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           {!id && (
-            <div className="flex space-x-2 mb-6">
+            <div className="flex flex-col sm:flex-row gap-2 mb-6">
               <Input 
                 placeholder="Enter membership ID (e.g., OMA-123456)"
                 value={membershipIdInput}
                 onChange={(e) => setMembershipIdInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
               />
               <Button 
                 onClick={handleVerify}
-                disabled={!membershipIdInput}
-                className="bg-oma-green hover:bg-oma-green/90 text-white whitespace-nowrap"
+                disabled={!membershipIdInput || isLoading}
+                className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
               >
-                <Barcode className="h-4 w-4 mr-2" />
-                Verify
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <span className="animate-spin mr-2">↻</span>
+                    Verifying...
+                  </span>
+                ) : (
+                  <>
+                    <Barcode className="h-4 w-4 mr-2" />
+                    Verify
+                  </>
+                )}
               </Button>
             </div>
           )}
           
           {verificationResult && (
             <div className="mt-6 border-t pt-6">
-              {verificationResult.verified ? (
+              {verificationResult.isValid && verificationResult.card ? (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-3">
-                    <CheckCircle2 className="h-8 w-8 text-oma-green flex-shrink-0" />
+                    <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0" />
                     <div>
-                      <h3 className="text-lg font-semibold text-oma-green">Verification Successful</h3>
+                      <h3 className="text-lg font-semibold text-green-600">Verification Successful</h3>
                       <p className="text-sm text-gray-500">This membership ID is valid and registered in our system.</p>
                     </div>
                   </div>
@@ -96,46 +164,57 @@ const VerifyIdPage: React.FC = () => {
                       <div>
                         <p className="text-gray-500">Name</p>
                         <p className="font-medium">
-                          {verificationResult.member?.firstName} {verificationResult.member?.lastName}
+                          {verificationResult.card.member.firstName} {verificationResult.card.member.lastName}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500">Member ID</p>
-                        <p className="font-medium">{verificationResult.member?.membershipId}</p>
+                        <p className="font-medium">{verificationResult.card.cardId}</p>
                       </div>
                       <div>
                         <p className="text-gray-500">Join Date</p>
                         <p className="font-medium">
-                          {verificationResult.member && formatDate(verificationResult.member.dateJoined)}
+                          {formatDate(verificationResult.card.member._createdAt)}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-500">Status</p>
-                        <Badge className={getBadgeColor(verificationResult.member?.status)}>
-                          {verificationResult.member?.status.charAt(0).toUpperCase()}{verificationResult.member?.status.slice(1)}
+                        <Badge className={getBadgeColor(verificationResult.card.member.membershipStatus)}>
+                          {verificationResult.card.member.membershipStatus.charAt(0).toUpperCase()}
+                          {verificationResult.card.member.membershipStatus.slice(1)}
                         </Badge>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Issued Date</p>
+                        <p className="font-medium">
+                          {formatDate(verificationResult.card?.issueDate)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Expiry Date</p>
+                        <p className="font-medium text-red-400">
+                          {formatDate(verificationResult.card?.expiryDate)}
+                        </p>
                       </div>
                     </div>
                   </div>
                   
-                  {!id && (
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={() => navigate(`/members/${verificationResult.member?.id}`)}
-                        className="bg-oma-gold hover:bg-oma-gold/90 text-black"
-                      >
-                        View Full Profile
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => navigate(`/members/${verificationResult.card.member._id}`)}
+                      className="bg-oma-green  text-white"
+                    >
+                      View Full Profile
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <XCircle className="h-8 w-8 text-oma-red flex-shrink-0" />
+                  <XCircle className="h-8 w-8 text-red-500 flex-shrink-0" />
                   <div>
-                    <h3 className="text-lg font-semibold text-oma-red">Verification Failed</h3>
+                    <h3 className="text-lg font-semibold text-red-600">Verification Failed</h3>
                     <p className="text-sm text-gray-500">
-                      The membership ID "{id || membershipIdInput}" is not valid or not registered in our system.
+                      {verificationResult.error || `The membership ID "${id || membershipIdInput}" is not valid or not registered in our system.`}
                     </p>
                   </div>
                 </div>

@@ -90,25 +90,25 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
 
         <div className="flex gap-4">
           <MemberPhoto
-            photo={member.photo}
-            firstName={member.firstName}
-            lastName={member.lastName}
+            photo={member?.photo}
+            firstName={member?.firstName}
+            lastName={member?.lastName}
           />
           <MemberInfo
-            firstName={member.firstName}
-            lastName={member.lastName}
-            membershipId={member.membershipId}
-            dateJoined={member._createdAt}
+            firstName={member?.firstName}
+            lastName={member?.lastName}
+            membershipId={card?.cardId}
+            dateJoined={member?._createdAt}
           />
         </div>
 
         <MembershipQRCode
-          membershipId={member.membershipId}
-          qrCodeUrl={card.qrCodeUrl}
+          membershipId={member?.membershipId}
+          qrCodeUrl={card?.qrCodeUrl}
         />
 
 <div className="flex gap-2 mt-4">
-          <PrintButton member={member} qrCodeUrl={card.qrCodeUrl} />
+          <PrintButton member={member} qrCodeUrl={card?.qrCodeUrl} />
 
           <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogTrigger asChild>

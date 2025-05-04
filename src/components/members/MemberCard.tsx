@@ -16,11 +16,11 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   const navigate = useNavigate();
   const getBadgeColor = (status: Member['membershipStatus']) => {
     switch(status) {
-      case 'active':
+      case 'Active':
         return 'bg-oma-green text-white hover:bg-oma-green/90';
-      case 'inactive':
+      case 'Inactive':
         return 'bg-gray-400 text-white hover:bg-gray-500';
-      case 'pending':
+      case 'Pending':
         return 'bg-yellow-500 text-white hover:bg-yellow-600';
       default:
         return 'bg-gray-400';
