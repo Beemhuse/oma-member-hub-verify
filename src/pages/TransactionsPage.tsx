@@ -36,7 +36,6 @@ const TransactionsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentFilter, setCurrentFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  // const
   const { data: transactions, isLoading } = useApiQuery<Transaction[]>({
     url: "/api/transactions",
   });
@@ -73,7 +72,7 @@ const TransactionsPage: React.FC = () => {
   });
 
   const totalAmount = filteredTransactions?.reduce((sum, transaction) => {
-    return transaction?.status === "completed" ? sum + transaction?.amount : sum;
+    return transaction?.status === "success" ? sum + transaction?.amount : sum;
   }, 0);
 
   return (
@@ -215,7 +214,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                 <TableCell>
                   <span
                     className={`inline-flex rounded-full px-2 text-xs font-semibold ${
-                      transaction?.status === "completed"
+                      transaction?.status === "success"
                         ? "bg-green-100 text-green-800"
                         : transaction?.status === "pending"
                         ? "bg-yellow-100 text-yellow-800"

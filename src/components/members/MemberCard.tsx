@@ -3,24 +3,24 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Member } from '@/types/member';
+import { ICard, IMember, Member, Members } from '@/types/member';
 import { formatDate } from '@/lib/utils/member-utils';
 import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
 
 interface MemberCardProps {
-  member: Member;
+  member: Members;
 }
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   const navigate = useNavigate();
-  const getBadgeColor = (status: Member['membershipStatus']) => {
+  const getBadgeColor = (status: Members['membershipStatus']) => {
     switch(status) {
       case 'Active':
         return 'bg-oma-green text-white hover:bg-oma-green/90';
       case 'Inactive':
         return 'bg-gray-400 text-white hover:bg-gray-500';
-      case 'Pending':
+      case 'Suspended':
         return 'bg-yellow-500 text-white hover:bg-yellow-600';
       default:
         return 'bg-gray-400';
@@ -59,7 +59,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Membership ID:</span>
-              <span className="text-gray-700 font-medium">{member.membershipId}</span>
+              <span className="text-gray-700 font-medium">{member?.card?.cardId ?? "Not Available"}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Joined:</span>

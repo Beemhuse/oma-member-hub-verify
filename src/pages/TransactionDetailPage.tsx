@@ -22,7 +22,6 @@ const TransactionDetailPage: React.FC = () => {
   const { data: transaction, isLoading, error } = useApiQuery<Transaction>({
     url: `/api/transactions/${id}`,
   });
-
   if (isLoading) {
     return (
       <div className="container mx-auto py-6 flex justify-center">
@@ -65,7 +64,7 @@ const TransactionDetailPage: React.FC = () => {
   }
 
   const getStatusBadge = (status: string) => {
-    switch(status.toLowerCase()) {
+    switch(status?.toLowerCase()) {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'failed': 
@@ -76,7 +75,7 @@ const TransactionDetailPage: React.FC = () => {
   };
 
   const getMethodBadge = (method: string) => {
-    switch(method.toLowerCase()) {
+    switch(method?.toLowerCase()) {
       case 'paystack': return 'bg-purple-100 text-purple-800';
       case 'card': return 'bg-blue-100 text-blue-800';
       case 'bank_transfer': return 'bg-indigo-100 text-indigo-800';
@@ -117,7 +116,7 @@ const TransactionDetailPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Transaction ID:</span>
-                  <span className="font-medium">{transaction.id}</span>
+                  <span className="font-medium">{transaction?.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Reference:</span>
@@ -126,19 +125,19 @@ const TransactionDetailPage: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Date:</span>
                   <span className="font-medium">
-                    {format(new Date(transaction.transactionDate), 'MMM d, yyyy h:mm a')}
+                    {format(new Date(transaction?.transactionDate), 'MMM d, yyyy h:mm a')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Type:</span>
                   <span className="font-medium capitalize">
-                    {transaction.type.replace('_', ' ')}
+                    {transaction?.type?.replace('_', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Status:</span>
-                  <Badge className={getStatusBadge(transaction.status)}>
-                    {transaction.status}
+                  <Badge className={getStatusBadge(transaction?.status)}>
+                    {transaction?.status}
                   </Badge>
                 </div>
               </div>
@@ -151,19 +150,19 @@ const TransactionDetailPage: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Amount:</span>
                   <span className="font-medium">
-                    {transaction.currency} {transaction.amount.toFixed(2)}
+                    {transaction.currency} {transaction?.amount?.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Payment Method:</span>
-                  <Badge className={getMethodBadge(transaction.method)}>
-                    {transaction.method.replace('_', ' ')}
+                  <Badge className={getMethodBadge(transaction?.method)}>
+                    {transaction?.method?.replace('_', ' ')}
                   </Badge>
                 </div>
-                {transaction.donationPurpose && (
+                {transaction?.donationPurpose && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Purpose:</span>
-                    <span className="font-medium">{transaction.donationPurpose}</span>
+                    <span className="font-medium">{transaction?.donationPurpose}</span>
                   </div>
                 )}
               </div>
@@ -191,13 +190,13 @@ const TransactionDetailPage: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Created:</span>
                   <span className="font-medium">
-                    {/* {format(new Date(transaction._createdAt), 'MMM d, yyyy h:mm a')} */}
+                    {format(new Date(transaction._createdAt), 'MMM d, yyyy h:mm a')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Last Updated:</span>
                   <span className="font-medium">
-                    {/* {format(new Date(transaction._updatedAt), 'MMM d, yyyy h:mm a')} */}
+                    {format(new Date(transaction?._updatedAt), 'MMM d, yyyy h:mm a')}
                   </span>
                 </div>
               </div>

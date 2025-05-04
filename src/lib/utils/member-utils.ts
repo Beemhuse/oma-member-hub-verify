@@ -1,5 +1,5 @@
 
-import { Member } from '@/types/member';
+import { IMember, IMembers, Member, Members } from '@/types/member';
 
 // Generate a unique membership ID with format OMA-XXXXXX
 export const generateMembershipId = (): string => {
@@ -14,16 +14,17 @@ export const formatDate = (date: string | Date): string => {
 };
 
 // Filter members based on search term
-export const filterMembers = (members: Member[], searchTerm: string): Member[] => {
+export const filterMembers = (members: Members[] | undefined, searchTerm: string): Members[] => {
+  if (!members) return [];
   if (!searchTerm) return members;
   
-  const lowerCaseSearchTerm = searchTerm?.toLowerCase();
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
   
   return members.filter(member => 
-    member?.firstName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-    member?.lastName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-    member?.email?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
-    member?.membershipId?.toLowerCase()?.includes(lowerCaseSearchTerm)
+    member.firstName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member.lastName?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member.email?.toLowerCase()?.includes(lowerCaseSearchTerm) ||
+    member._id?.toLowerCase()?.includes(lowerCaseSearchTerm)
   );
 };
 
