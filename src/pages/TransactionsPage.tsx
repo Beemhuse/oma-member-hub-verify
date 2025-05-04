@@ -128,7 +128,7 @@ const TransactionsPage: React.FC = () => {
 
             <div className="mt-4 bg-muted/40 p-2 rounded-md">
               <span className="font-medium">Total (Completed): </span>
-              <span className="text-green-600">${totalAmount.toFixed(2)}</span>
+              <span className="text-green-600">${totalAmount?.toFixed(2)}</span>
             </div>
 
             <TabsContent value="all" className="mt-2">
@@ -202,10 +202,10 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                 <TableCell>{transaction?.donationPurpose}</TableCell>
                 <TableCell>
                   <span className="capitalize">
-                    {transaction.type.replace("_", " ")}
+                    {transaction?.type?.replace("_", " ")}
                   </span>
                 </TableCell>
-                <TableCell>${transaction?.amount.toFixed(2)}</TableCell>
+                <TableCell>${transaction?.amount?.toFixed(2)}</TableCell>
                 <TableCell>
                   {format(new Date(transaction.transactionDate), "MMM d, yyyy")}
                 </TableCell>
@@ -227,7 +227,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Link
-                    to={`/transactions/${transaction.id}`}
+                    to={`/transactions/${transaction?.id}`}
                     className="text-blue-600 hover:underline"
                   >
                     View Details
