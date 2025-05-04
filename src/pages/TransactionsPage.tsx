@@ -40,7 +40,6 @@ const TransactionsPage: React.FC = () => {
   const { data: transactions, isLoading } = useApiQuery<Transaction[]>({
     url: "/api/transactions",
   });
-  console.log(transactions);
   useEffect(() => {
     const auth = localStorage.getItem("isAuthenticated");
     if (auth !== "true") {
