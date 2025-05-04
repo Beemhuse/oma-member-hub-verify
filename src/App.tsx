@@ -1,10 +1,7 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { MemberProvider } from "@/contexts/MemberContext";
 
 import MainLayout from "./components/layout/MainLayout";
 import MembersListPage from "./pages/MembersListPage";
@@ -17,35 +14,32 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import SignupPage from "./pages/Signup";
+import TransactionDetailPage from "./pages/TransactionDetailPage";
 
-const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <MemberProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/members" element={<MembersListPage />} />
-              <Route path="/add-member" element={<AddMemberPage />} />
-              <Route path="/members/:id" element={<MemberDetailPage />} />
-              <Route path="/members/:id/edit" element={<EditMemberPage />} />
-              <Route path="/verify/" element={<VerifyIdPage />} />
-              <Route path="/transactions" element={<TransactionsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </MemberProvider>
-  </QueryClientProvider>
+  <TooltipProvider>
+    <Toaster />
+    <Sonner />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/members" element={<MembersListPage />} />
+          <Route path="/add-member" element={<AddMemberPage />} />
+          <Route path="/members/:id" element={<MemberDetailPage />} />
+          <Route path="/members/:id/edit" element={<EditMemberPage />} />
+          <Route path="/verify/" element={<VerifyIdPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/transactions/:id" element={<TransactionDetailPage />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  </TooltipProvider>
 );
 
 export default App;

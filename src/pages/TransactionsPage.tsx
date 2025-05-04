@@ -1,95 +1,50 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format } from 'date-fns';
-import { Search } from 'lucide-react';
-import { Transaction } from '@/types/member';
-
-// Mock transactions data - replace with actual API call later
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    memberId: 'MEM001',
-    amount: 50,
-    description: 'Membership Fee - 2025',
-    date: '2025-01-10T12:00:00Z',
-    paymentMethod: 'card',
-    status: 'completed',
-    type: 'membership_fee'
-  },
-  {
-    id: '2',
-    memberId: 'MEM002',
-    amount: 15,
-    description: 'ID Card Replacement',
-    date: '2025-01-15T14:30:00Z',
-    paymentMethod: 'cash',
-    status: 'completed',
-    type: 'id_card'
-  },
-  {
-    id: '3',
-    memberId: 'MEM003',
-    amount: 100,
-    description: 'General Donation',
-    date: '2025-01-20T09:15:00Z',
-    paymentMethod: 'bank_transfer',
-    status: 'pending',
-    type: 'donation'
-  },
-  {
-    id: '4',
-    memberId: 'MEM001',
-    amount: 25,
-    description: 'Event Fee - Summer Gathering',
-    date: '2025-02-05T16:45:00Z',
-    paymentMethod: 'card',
-    status: 'completed',
-    type: 'event_fee'
-  },
-  {
-    id: '5',
-    memberId: 'MEM004',
-    amount: 50,
-    description: 'Membership Fee - 2025',
-    date: '2025-02-10T11:30:00Z',
-    paymentMethod: 'cash',
-    status: 'cancelled',
-    type: 'membership_fee'
-  },
-];
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
+import { Search } from "lucide-react";
+import { Transaction } from "@/types/member";
+import { useApiQuery } from "@/hooks/useApi";
 
 const TransactionsPage: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentFilter, setCurrentFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentFilter, setCurrentFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  // const
+  const { data: transactions, isLoading } = useApiQuery<Transaction[]>({
+    url: "/api/transactions",
+  });
+  console.log(transactions);
   useEffect(() => {
-    const auth = localStorage.getItem('isAuthenticated');
-    if (auth !== 'true') {
-      navigate('/login');
+    const auth = localStorage.getItem("isAuthenticated");
+    if (auth !== "true") {
+      navigate("/login");
     } else {
       setIsAuthenticated(true);
     }
@@ -100,56 +55,53 @@ const TransactionsPage: React.FC = () => {
   }
 
   // Filter transactions based on search term, status and type
-  const filteredTransactions = transactions.filter(transaction => {
+  const filteredTransactions = transactions?.filter((transaction) => {
     // Search filter
-    const matchesSearch = 
-      transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.memberId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch =
+      transaction?.currency
+        ?.toLowerCase()
+        ?.includes(searchTerm.toLowerCase()) ||
+      transaction?.id?.toLowerCase()?.includes(searchTerm.toLowerCase());
+
     // Status filter
-    const matchesStatus = 
-      currentFilter === 'all' || 
-      transaction.status === currentFilter;
-    
+    const matchesStatus =
+      currentFilter === "all" || transaction?.status === currentFilter;
+
     // Type filter
-    const matchesType = 
-      typeFilter === 'all' || 
-      transaction.type === typeFilter;
-    
+    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
   const totalAmount = filteredTransactions.reduce((sum, transaction) => {
-    return transaction.status === 'completed' ? sum + transaction.amount : sum;
+    return transaction.status === "completed" ? sum + transaction.amount : sum;
   }, 0);
 
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Transaction Management</h1>
-      
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Transaction Overview</CardTitle>
-          <CardDescription>Manage and view all financial transactions</CardDescription>
+          <CardDescription>
+            Manage and view all financial transactions
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-grow">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input 
-                placeholder="Search transactions..." 
+              <Input
+                placeholder="Search transactions..."
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="flex gap-4">
-              <Select 
-                value={typeFilter} 
-                onValueChange={setTypeFilter}
-              >
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
@@ -162,38 +114,38 @@ const TransactionsPage: React.FC = () => {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Button variant="outline">Export</Button>
             </div>
           </div>
-          
+
           <Tabs defaultValue="all" onValueChange={setCurrentFilter}>
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
+              <TabsTrigger value="success">Success</TabsTrigger>
               <TabsTrigger value="pending">Pending</TabsTrigger>
               <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
             </TabsList>
-            
+
             <div className="mt-4 bg-muted/40 p-2 rounded-md">
               <span className="font-medium">Total (Completed): </span>
               <span className="text-green-600">${totalAmount.toFixed(2)}</span>
             </div>
-            
+
             <TabsContent value="all" className="mt-2">
-              <TransactionTable transactions={filteredTransactions} />
+              <TransactionTable transactions={filteredTransactions} isLoading={isLoading} />
             </TabsContent>
-            
-            <TabsContent value="completed" className="mt-2">
-              <TransactionTable transactions={filteredTransactions} />
+
+            <TabsContent value="success" className="mt-2">
+              <TransactionTable transactions={filteredTransactions} isLoading={isLoading} />
             </TabsContent>
-            
+
             <TabsContent value="pending" className="mt-2">
-              <TransactionTable transactions={filteredTransactions} />
+              <TransactionTable transactions={filteredTransactions} isLoading={isLoading} />
             </TabsContent>
-            
+
             <TabsContent value="cancelled" className="mt-2">
-              <TransactionTable transactions={filteredTransactions} />
+              <TransactionTable transactions={filteredTransactions} isLoading={isLoading} />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -204,22 +156,34 @@ const TransactionsPage: React.FC = () => {
 
 interface TransactionTableProps {
   transactions: Transaction[];
+  isLoading: boolean;
 }
 
-const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({
+  transactions,
+  isLoading
+}) => {
   return (
     <div className="rounded-md border">
+      {
+        isLoading ? 
+        <div className="container mx-auto py-6 flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900" />
+      </div>
+      :
+
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Member ID</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead>Transaction Ref</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Purpose</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Method</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>View</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -232,39 +196,50 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
           ) : (
             transactions.map((transaction) => (
               <TableRow key={transaction.id}>
-                <TableCell className="font-medium">{transaction.id}</TableCell>
-                <TableCell>{transaction.memberId}</TableCell>
-                <TableCell>{transaction.description}</TableCell>
+                <TableCell className="font-medium">
+                  {transaction?.transactionRef}
+                </TableCell>
+                <TableCell>{transaction?.name}</TableCell>
+                <TableCell>{transaction?.donationPurpose}</TableCell>
                 <TableCell>
                   <span className="capitalize">
-                    {transaction.type.replace('_', ' ')}
+                    {transaction.type.replace("_", " ")}
                   </span>
                 </TableCell>
-                <TableCell>${transaction.amount.toFixed(2)}</TableCell>
+                <TableCell>${transaction?.amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  {format(new Date(transaction.date), 'MMM d, yyyy')}
+                  {format(new Date(transaction.transactionDate), "MMM d, yyyy")}
                 </TableCell>
                 <TableCell className="capitalize">
-                  {transaction.paymentMethod.replace('_', ' ')}
+                  {transaction?.method?.replace("_", " ")}
                 </TableCell>
                 <TableCell>
-                  <span 
+                  <span
                     className={`inline-flex rounded-full px-2 text-xs font-semibold ${
-                      transaction.status === 'completed' 
-                        ? 'bg-green-100 text-green-800' 
-                        : transaction.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
+                      transaction?.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : transaction?.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {transaction.status}
+                    {transaction?.status}
                   </span>
+                </TableCell>
+                <TableCell>
+                  <Link
+                    to={`/transactions/${transaction.id}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Details
+                  </Link>
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
+      }
     </div>
   );
 };

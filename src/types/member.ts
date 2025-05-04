@@ -30,12 +30,15 @@ export interface MemberDetails {
 }
 
 export interface Transaction {
-  id: string;
-  memberId: string;
+  id: string; // Additional ID field
+  transactionRef: string;
+  name: string;
+  email: string;
   amount: number;
-  description: string;
-  date: string;
-  paymentMethod: 'cash' | 'card' | 'bank_transfer' | 'other';
-  status: 'completed' | 'pending' | 'cancelled';
-  type: 'membership_fee' | 'id_card' | 'donation' | 'event_fee' | 'other';
+  currency: "GHS" | string; // Assuming GHS is primary but could accept others
+  method: "paystack" | string; // Primary payment method but extensible
+  donationPurpose: string;
+  status: "pending" | "completed" | "failed" | "refunded"; // Common status values
+  transactionDate: string; // ISO date string
+  type: "donation" | string; // Primary type but extensible
 }
