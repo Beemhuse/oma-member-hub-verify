@@ -70,7 +70,6 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
       });
     },
   });
-
   const handleRevoke = () => {
     if (!revocationReason.trim()) {
       toast({

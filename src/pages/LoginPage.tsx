@@ -110,7 +110,7 @@ const onSubmit = (values: FormValues) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <Button loading={isMutating} type="submit" className="w-full">
                 Login
               </Button>
             </form>

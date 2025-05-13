@@ -20,7 +20,7 @@ export function useApiQuery<TResponse>({
   url,
   shouldFetch = true,
 }: UseApiQueryOptions<TResponse>) {
-  const { data, error, isLoading, mutate } = useSWR<TResponse>(
+  const { data, error, isLoading, mutate,  } = useSWR<TResponse>(
     shouldFetch ? url : null,
     async (url: string) => {
       const response = await api.get<TResponse>(url);
