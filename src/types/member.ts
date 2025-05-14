@@ -5,6 +5,7 @@ export interface Member {
   lastName: string;
   email: string;
   phone: string;
+  country: string;
   address: string;
   membershipId: string;
   _createdAt: string;
@@ -13,8 +14,8 @@ export interface Member {
   dateOfBirth?: string;
   occupation?: string;
   emergencyContact?: string;
+  image: null;
   role?: 'member' | 'admin' | 'staff' | 'executive';
-  qrCode: string;
 }
 export interface IMember {
   _id: string;
@@ -23,11 +24,12 @@ export interface IMember {
   lastName: string;
   email: string;
   phone: string;
+  country: string;
   address: string;
   membershipId: string;
   _createdAt: string;
   membershipStatus: 'Active' | 'Inactive' | 'Pending';
-  photo?: string;
+  image?: string;
   dateOfBirth?: string;
   occupation?: string;
   emergencyContact?: string;
@@ -62,6 +64,8 @@ export interface Members {
   email: string;
   phone: string;
   address: string;
+  image: string;
+  country: string;
   occupation: string;
   emergencyContact: string;
   dateOfBirth: string;

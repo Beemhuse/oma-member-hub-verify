@@ -24,6 +24,7 @@ export function useApiQuery<TResponse>({
     shouldFetch ? url : null,
     async (url: string) => {
       const response = await api.get<TResponse>(url);
+      console.log(response, "response")
       return response.data;
     }
   );

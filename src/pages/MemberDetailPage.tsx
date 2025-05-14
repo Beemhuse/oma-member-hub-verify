@@ -63,6 +63,7 @@ const MemberDetailPage: React.FC = () => {
         title: "Successful",
         description: "Id generated!",
       });
+      
     },
     onError: (error) => {
       toast({
@@ -91,7 +92,7 @@ const MemberDetailPage: React.FC = () => {
     },
   });
   // const member = data.member
-  console.log(data?.member);
+  // console.log(data);
   // if (!member) {
   //   return <Navigate to="/not-found" />;
   // }
@@ -289,7 +290,7 @@ const MemberDetailPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="idcard">
-          <div className="max-w-lg mx-auto flex flex-col items-center gap-6">
+          <div className="max-w-2xl mx-auto flex flex-col items-center gap-6">
             {data?.card ? (
               <>
                 <MembershipCard member={data?.member} card={data?.card} />

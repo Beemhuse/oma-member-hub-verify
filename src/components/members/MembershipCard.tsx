@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ICard, Member } from "@/types/member";
-import { MembershipCardHeader } from "./membership-card/MembershipCardHeader";
-import { MemberPhoto } from "./membership-card/MemberPhoto";
-import { MemberInfo } from "./membership-card/MemberInfo";
-import { MembershipQRCode } from "./membership-card/MembershipQRCode";
-import { PrintButton } from "./membership-card/PrintButton";
 import { Button } from "@/components/ui/button";
 import { Ban } from "lucide-react";
 import {
@@ -19,10 +14,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useApiMutation } from "@/hooks/useApi";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import IDCard from "./membership-card/IdCard";
 
 const REVOCATION_REASONS = [
   "Lost",
@@ -31,7 +26,6 @@ const REVOCATION_REASONS = [
   "Membership Terminated",
   "Other"
 ] as const;
-
 
 type RevocationReason = typeof REVOCATION_REASONS[number];
 
@@ -70,6 +64,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
       });
     },
   });
+
   const handleRevoke = () => {
     if (!revocationReason.trim()) {
       toast({
@@ -83,32 +78,18 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
   };
 
   return (
+    <>
+       <IDCard member={member}  card={card}/>
     <Card className="shadow-md" id="membership-card">
-      <CardContent className="p-6">
-        <MembershipCardHeader />
+      <CardContent className="">
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-4">
+          {/* <Button variant="destructive" className="gap-2">
+            <Ban className="h-4 w-4" />
+            Revoke Card
+          </Button> */}
 
-        <div className="flex gap-4">
-          <MemberPhoto
-            photo={member?.photo}
-            firstName={member?.firstName}
-            lastName={member?.lastName}
-          />
-          <MemberInfo
-            firstName={member?.firstName}
-            lastName={member?.lastName}
-            membershipId={card?.cardId}
-            dateJoined={member?._createdAt}
-          />
-        </div>
-
-        <MembershipQRCode
-          membershipId={member?.membershipId}
-          qrCodeUrl={card?.qrCodeUrl}
-        />
-
-<div className="flex gap-2 mt-4">
-          <PrintButton member={member} qrCodeUrl={card?.qrCodeUrl} />
-
+          {/* Revoke Card Dialog */}
           <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="gap-2">
@@ -123,7 +104,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
                   This action cannot be undone. Please select a reason for revocation.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              
+
               <div className="space-y-4">
                 <Select
                   value={revocationReason}
@@ -156,7 +137,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
@@ -172,6 +153,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
         </div>
       </CardContent>
     </Card>
+    </>
   );
 };
 

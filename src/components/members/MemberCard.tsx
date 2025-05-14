@@ -34,9 +34,9 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-oma-gold/20 flex items-center justify-center">
-                {member.photo ? (
+                {member?.image ? (
                   <img 
-                    src={member.photo} 
+                    src={member?.image} 
                     alt={`${member.firstName} ${member.lastName}`} 
                     className="h-10 w-10 rounded-full object-cover" 
                   />
