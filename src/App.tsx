@@ -15,9 +15,15 @@ import DashboardPage from "./pages/DashboardPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import SignupPage from "./pages/Signup";
 import TransactionDetailPage from "./pages/TransactionDetailPage";
+import AddSignaturePage from "./pages/AddSignature";
+import { useState } from "react";
 
 
-const App = () => (
+const App = () => {
+    const [refreshKey, setRefreshKey] = useState(Date.now());
+
+  return (
+
   <TooltipProvider>
     <Toaster />
     <Sonner />
@@ -30,6 +36,8 @@ const App = () => (
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/members" element={<MembersListPage />} />
           <Route path="/add-member" element={<AddMemberPage />} />
+          <Route path="/add-signature" element={<AddSignaturePage 
+          key={refreshKey}  onRefresh={() => setRefreshKey(Date.now())}/>} />
           <Route path="/members/:id" element={<MemberDetailPage />} />
           <Route path="/members/:id/edit" element={<EditMemberPage />} />
           <Route path="/verify/" element={<VerifyIdPage />} />
@@ -40,6 +48,8 @@ const App = () => (
       </Routes>
     </BrowserRouter>
   </TooltipProvider>
-);
+  )
+}
+
 
 export default App;

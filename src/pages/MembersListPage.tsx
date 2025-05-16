@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMemberContext } from '@/contexts/MemberContext';
+// import { useMemberContext } from '@/contexts/MemberContext';
 import MemberCard from '@/components/members/MemberCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

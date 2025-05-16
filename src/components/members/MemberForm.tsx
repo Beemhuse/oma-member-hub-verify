@@ -31,13 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMemberContext } from "@/contexts/MemberContext";
 import { useNavigate } from "react-router-dom";
 import { Member } from "@/types/member";
 import { useApiMutation } from "@/hooks/useApi";
 import { toast } from "@/hooks/use-toast";
 
-// Schema for form validation
 const formSchema = z.object({
   firstName: z
     .string()
@@ -56,8 +54,7 @@ const formSchema = z.object({
   role: z.string().optional(),
   occupation: z.string().optional(),
   emergencyContact: z.string().optional(),
-    image: z.any().optional(), // For file upload
-
+  image: z.any().optional(), // For file upload
 });
 interface Country {
   name: string;
@@ -175,10 +172,16 @@ const MemberForm: React.FC<MemberFormProps> = ({
       occupation: data.occupation || undefined,
       emergencyContact: data.emergencyContact || undefined,
       image: imageUrl,
-
     };
+    if (isUploadingImage) {
+      toast({
+        title: "Image is still uploading",
+      });
+    } else {
+      createOrUpdateMember(apiData);
+    }
+    navigate("/members")
     // console.log(apiData);
-    createOrUpdateMember(apiData);
   };
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -197,50 +200,55 @@ const MemberForm: React.FC<MemberFormProps> = ({
     },
   });
 
- 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setPreviewImage(previewUrl);
-      form.setValue('image', file);
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewImage(previewUrl);
+        form.setValue("image", file);
 
-      // Upload the image immediately
-      setIsUploadingImage(true);
-      try {
-        const formData = new FormData();
-        formData.append('image', file);
+        // Upload the image immediately
+        setIsUploadingImage(true);
+        try {
+          const formData = new FormData();
+          formData.append("image", file);
 
-        const response = await fetch('http://localhost:5000/upload-image', {
-          method: 'POST',
-          body: formData,
-        });
+          const response = await fetch(
+            "https://oma-backend-1.onrender.com/upload-image",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-        if (!response.ok) {
-          throw new Error('Failed to upload image');
+          if (!response.ok) {
+            throw new Error("Failed to upload image");
+          }
+
+          const data = await response.json();
+          setImageUrl(data.asset._id);
+          toast({
+            title: "Success",
+            description: "Image uploaded successfully",
+          });
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          toast({
+            title: "Error",
+            description: "Failed to upload image",
+            variant: "destructive",
+          });
+          setPreviewImage(null);
+          form.setValue("image", undefined);
+        } finally {
+          setIsUploadingImage(false);
         }
-
-        const data = await response.json();
-        setImageUrl(data.asset._id);
-        toast({
-          title: 'Success',
-          description: 'Image uploaded successfully',
-        });
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to upload image',
-          variant: 'destructive',
-        });
-        setPreviewImage(null);
-        form.setValue('image', undefined);
-      } finally {
-        setIsUploadingImage(false);
       }
-    }
-  }, [form]);
+    },
+    [form]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -314,6 +322,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                           </div>
                         </div>
                       )}
+                      {isUploadingImage && "Uploading image"}
                     </div>
                     <FormMessage />
                   </FormItem>
@@ -359,7 +368,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isLoadingCountries}
+                      disabled={isLoadingCountries || isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -413,6 +422,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                         type="email"
                         placeholder="john.doe@example.com"
                         {...field}
+                        disabled={isEditing}
                       />
                     </FormControl>
                     <FormMessage />
@@ -523,7 +533,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="board_member">Board Member</SelectItem>
                       <SelectItem value="staff">Staff</SelectItem>
                       <SelectItem value="executive">Executive</SelectItem>
                     </SelectContent>
@@ -547,6 +557,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
               <Button
                 loading={isMutating}
                 type="submit"
+                disabled={isUploadingImage}
                 className="bg-oma-green hover:bg-oma-green/90"
               >
                 {isEditing ? "Update Member" : "Add Member"}

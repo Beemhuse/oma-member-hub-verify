@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { User, Users, Barcode, UserPlus, LogOut, LayoutDashboard, ChartBar } from 'lucide-react';
+import { User, Users, Barcode, UserPlus, LogOut, LayoutDashboard, ChartBar, UploadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -89,6 +89,19 @@ const MainLayout: React.FC = () => {
                   >
                     <UserPlus size={18} />
                     <span>Add Member</span>
+                  </NavLink>
+                  <NavLink 
+                    to="/add-signature" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2 rounded-md ${
+                        isActive 
+                          ? 'bg-oma-gold text-black font-medium' 
+                          : 'text-oma-gold hover:bg-oma-gold/10'
+                      }`
+                    }
+                  >
+                    <UploadIcon size={18} />
+                    <span>Add Signature</span>
                   </NavLink>
                   <NavLink 
                     to="/verify" 

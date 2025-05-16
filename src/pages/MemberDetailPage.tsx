@@ -31,7 +31,11 @@ import { useApiMutation, useApiQuery } from "@/hooks/useApi";
 import { MemberDetails } from "@/types/member";
 import { toast } from "@/hooks/use-toast";
 import LoadingPage from "@/components/Loading";
-
+interface SignatureUploadResponse {
+  signatureId: string;
+  signatureUrl: string;
+  
+}
 const getBadgeColor = (status: string) => {
   switch (status) {
     case "Active":
@@ -48,11 +52,14 @@ const MemberDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   // const { getMember, deleteMember } = useMemberContext();
   const navigate = useNavigate();
-  const { data, isLoading } = useApiQuery<MemberDetails>({
+  const { data, isLoading, mutate } = useApiQuery<MemberDetails>({
     url: `/api/members/${id}`,
     shouldFetch: !!id,
   });
-  // console.log(data)
+  const { data: signature, isLoading:signatureLoading } = useApiQuery<SignatureUploadResponse>({
+    url: `/signature`,
+  });
+  console.log(signature)
 
   const { mutate: generateId, isMutating } = useApiMutation({
     method: "POST",
@@ -63,6 +70,8 @@ const MemberDetailPage: React.FC = () => {
         title: "Successful",
         description: "Id generated!",
       });
+      mutate()
+      navigate(".", { replace: true, state: { key: Date.now() } });
       
     },
     onError: (error) => {
@@ -82,6 +91,9 @@ const MemberDetailPage: React.FC = () => {
         title: "Successful",
         description: "User Deleted!",
       });
+      mutate()
+      navigate("/members")
+
     },
     onError: (error) => {
       toast({
@@ -91,11 +103,7 @@ const MemberDetailPage: React.FC = () => {
       });
     },
   });
-  // const member = data.member
-  // console.log(data);
-  // if (!member) {
-  //   return <Navigate to="/not-found" />;
-  // }
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -293,7 +301,7 @@ const MemberDetailPage: React.FC = () => {
           <div className="max-w-2xl mx-auto flex flex-col items-center gap-6">
             {data?.card ? (
               <>
-                <MembershipCard member={data?.member} card={data?.card} />
+                <MembershipCard member={data?.member} mutate={mutate} card={data?.card} signature={signature?.signatureUrl} />
               </>
             ) : (
               <div className="text-center">

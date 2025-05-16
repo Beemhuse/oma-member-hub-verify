@@ -1,69 +1,236 @@
-import { formatDate } from '@/lib/utils/member-utils';
-import React, { useState } from 'react';
+import { formatDate } from "@/lib/utils/member-utils";
+import { useRef, useState } from "react";
 
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+const waitForImagesToLoad = (element) => {
+  const images = element.querySelectorAll("img");
+  const promises = [];
 
-const IDCard = ({member, card} ) => {
-  const [showBack, setShowBack] = useState(false);
-// console.log(member, "member")
-const admin = {
-    signature: null
-}
+  images.forEach((img) => {
+    if (!img.complete || img.naturalHeight === 0) {
+      promises.push(
+        new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        })
+      );
+    }
+  });
+
+  return Promise.all(promises);
+};
+
+const IDCard = ({ member, card, signature }) => {
+  const frontRef = useRef(null);
+  const backRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const handleSendPDF = async () => {
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [85.6, 54], // ID card size (CR80 standard)
+      });
+
+      const frontElement = frontRef.current;
+      const backElement = backRef.current;
+
+      if (!frontElement || !backElement) {
+        console.error("Card elements are not available");
+        return;
+      }
+
+      // Wait for images to load
+      await waitForImagesToLoad(frontElement);
+      await waitForImagesToLoad(backElement);
+
+      // Capture front
+      const frontCanvas = await html2canvas(frontElement, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 3, // High quality
+      });
+      const frontImgData = frontCanvas.toDataURL("image/png");
+      doc.addImage(frontImgData, "PNG", 0, 0, 85.6, 54); // ID card size
+
+      // Capture back
+      doc.addPage([85.6, 54], "landscape");
+      // backElement.style.display = 'block';
+      const backCanvas = await html2canvas(backElement, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 3,
+      });
+      const backImgData = backCanvas.toDataURL("image/png");
+      doc.addImage(backImgData, "PNG", 0, 0, 85.6, 54);
+      const pdfData = doc.output("blob"); // Get raw PDF data
+
+      // Create a File object from the PDF data
+      const pdfFile = new File(
+        [pdfData],
+        `${member?.firstName}_${member?.lastName}_IDCard.pdf`,
+        { type: "application/pdf" }
+      );
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("email", "brightawah94@gmail.com");
+      formData.append("name", `${member?.firstName} ${member?.lastName}`);
+      formData.append(
+        "file",
+        pdfData,
+        `${member?.firstName}_${member?.lastName}_IDCard.pdf`
+      );
+      // await fetch("http://localhost:5000/upload-id", {
+        await fetch("https://oma-backend-1.onrender.com/upload-id", {
+        method: "POST",
+        body: formData,
+      });
+      setLoading(false);
+      // doc.save(`${member?.firstName}_ID_Card.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      setLoading(false);
+    }
+  };
+  const handleDownloadPDF = async () => {
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [85.6, 54], // ID card size (CR80 standard)
+      });
+
+      const frontElement = frontRef.current;
+      const backElement = backRef.current;
+
+      if (!frontElement || !backElement) {
+        console.error("Card elements are not available");
+        return;
+      }
+
+      // Wait for images to load
+      await waitForImagesToLoad(frontElement);
+      await waitForImagesToLoad(backElement);
+
+      // Capture front
+      const frontCanvas = await html2canvas(frontElement, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 3, // High quality
+      });
+      const frontImgData = frontCanvas.toDataURL("image/png");
+      doc.addImage(frontImgData, "PNG", 0, 0, 85.6, 54); // ID card size
+
+      // Capture back
+      doc.addPage([85.6, 54], "landscape");
+      // backElement.style.display = 'block';
+      const backCanvas = await html2canvas(backElement, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 3,
+      });
+      const backImgData = backCanvas.toDataURL("image/png");
+      doc.addImage(backImgData, "PNG", 0, 0, 85.6, 54);
+
+      doc.save(`${member?.firstName}_ID_Card.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const admin = {
+    signature: null,
+  };
   return (
-    <div className=" border w-full " >
-      {/* Card Container */}
-      <div className="relative w-full">
-        {/* Front of the Card */}
-        {!showBack && (
-          <div id="frontCard" className='h-96 w-full'>
-            <img src={"/FrontcardImage.jpg"} alt="Id front" className="w-full" />
+    <div className="">
+      <div className=" border w-full ">
+        {/* Card Container */}
+        <div className="flex justify-between">
+          <button
+            onClick={handleDownloadPDF}
+            className="font-bold border border-red-800 bg-red-800 text-white p-2 rounded-sm py-1"
+          >
+            Download Card
+          </button>
+          <button
+            disabled={loading}
+            onClick={handleSendPDF}
+            className="font-bold border border-green-800 bg-green-800 text-white  p-2 rounded-sm py-1"
+          >
+            {loading ? "Loading" : "Send Card to user"}
+          </button>
+        </div>
+        <div className="relative w-full flex flex-col">
+          {/* Front of the Card */}
+
+          <div
+            id="frontCard"
+            ref={frontRef}
+            className={`h-96 w-full relative `}
+          >
+            <img
+              src={"/FrontcardImage.jpg"}
+              alt="Id front"
+              className="w-full"
+              crossOrigin="anonymous"
+            />
             <img
               src={member?.image}
+              crossOrigin="anonymous"
               alt="User picture"
               className="rounded-full absolute top-[70px] w-[26%] h-[175px] object-cover left-[48px]"
             />
             <div className="absolute top-[35%] left-[35%]">
-              <h1 className="text-4xl text-green-500 font-bold">{member?.firstName}  {member?.lastName} </h1>
-              <h2 className="text-3xl">{member?.country}</h2>
+              <h1 className="text-3xl w-96 font-bold text-green-500">
+                {member?.firstName} {member?.lastName}{" "}
+              </h1>
+              <h2 className="text-xl">{member?.country}</h2>
             </div>
             <div className="absolute top-[65%] left-10 w-[60%] px-4 text-black">
-              <div className="grid grid-cols-5 gap-x-10">
+              <div className="grid grid-cols-5 gap-x-2">
+                <div className="col-span-3 space-y-4">
+                  <div className="">
+                    <h2 className="font-bold">ID NO:</h2>
+                    <p className="text-sm">{card?.cardId}</p>
+                  </div>
+                  <div className="">
+                    <h2 className="font-bold">Issued:</h2>
+                    <p className="text-sm"> {formatDate(card?.issueDate)}</p>
+                  </div>
+                </div>
                 <div className="col-span-2 space-y-4">
-                <div className=''>
-                  <h2 className="font-medium">ID NO:</h2>
-                  <p className='text-sm'>{card?.cardId}</p>
+                  <div className="">
+                    <h2 className="font-bold">Email:</h2>
+                    <p>{member?.email}</p>
+                  </div>
+                  <div className=" col-span-2">
+                    <h2 className="font-bold">Expires:</h2>
+                    <p>{formatDate(card?.expiryDate)}</p>
+                  </div>
                 </div>
-                 <div className=''>
-                  <h2 className="font-medium">Issued:</h2>
-                  <p> {formatDate(card?.issueDate)}</p>
-                </div>
-
-                </div>
-             <div className="col-span-2 space-y-4">
-
-               
-                <div className=''>
-                  <h2 className="font-medium">Email:</h2>
-                  <p>{member?.email}</p>
-                </div>
-                <div className=' col-span-2'>
-                  <h2 className="font-medium">Expires:</h2>
-                  <p>{formatDate(card?.expiryDate)}</p>
-                </div>
-             </div>
               </div>
             </div>
             <img
               src={card?.qrCodeUrl}
               alt="QR Code"
+              crossOrigin="anonymous"
               className="absolute bottom-1 w-32 right-6"
             />
           </div>
-        )}
 
-        {/* Back of the Card */}
-        {showBack && (
-          <div id="backCard">
-            <img src="/cardBackImage.jpg" alt="Id back" className="w-full" />
+          {/* Back of the Card */}
+          <div
+            id="backCard"
+            ref={backRef}
+            className={`min-h-[400px] mt-10 relative`}
+          >
+            <img
+              src="/cardBackImage.jpg"
+              alt="Id back"
+              className="w-full"
+              crossOrigin="anonymous"
+            />
             <div className="absolute top-0 left-0 w-full h-full px-10 space-y-8 py-4">
               <div className="mb-4 flex flex-col items-center text-center">
                 <h2 className="text-sm font-medium">
@@ -80,12 +247,25 @@ const admin = {
               <div className="flex justify-center gap-10 items-center">
                 <div className="text-center flex flex-col items-center p-5 border border-gray-500 w-[50%]">
                   <p className="text-sm font-medium mb-1">SIGNATURE</p>
-                  <img src={admin?.signature ?? "/clientSignture.png"} alt="Client signature" className="w-32" />
+                  {
+                    signature ? 
+                    <img
+                      src={signature}
+                      alt="Oma signature"
+                      className="w-32 "
+                      crossOrigin="anonymous"
+                    /> : null
+                  }
                 </div>
-                <img src={card?.qrCodeUrl} className="w-32" alt="QR Code" />
+                <img
+                  src={card?.qrCodeUrl}
+                  className="w-32"
+                  alt="QR Code"
+                  crossOrigin="anonymous"
+                />
               </div>
 
-              <div className="text-center">
+              <div className="text-center absolute -bottom-8">
                 <h2 className="text-lg font-bold tracking-widest font-mono">
                   &lt;IONEMAPAFRICA09719802&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                   <br />
@@ -93,22 +273,29 @@ const admin = {
                   <br />
                   &lt;&lt;&lt;ONEMAPAFRICA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                 </h2>
+                <br />
+                <br />
               </div>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Buttons */}
       </div>
 
-      {/* Buttons */}
-      <div className="flex gap-4 mt-6">
+      <div className="flex justify-between mt-10">
         <button
-          className="font-bold border border-blue-600 bg-blue-600 text-white w-32 rounded-sm py-1"
-          onClick={() => setShowBack(prev => !prev)}
+          onClick={handleDownloadPDF}
+          className="font-bold border border-red-800 bg-red-800 text-white p-2 rounded-sm py-1"
         >
-          {showBack ? 'Show Front' : 'Show Back'}
+          Download Card
         </button>
-        <button className="font-bold border border-red-800 bg-red-800 text-white w-32 rounded-sm py-1">
-          Print Card
+        <button
+          onClick={handleSendPDF}
+          disabled={loading}
+          className="font-bold border border-green-800 bg-green-800 text-white  p-2 rounded-sm py-1"
+        >
+          {loading ? "Loading" : "Send Card to user"}{" "}
         </button>
       </div>
     </div>
