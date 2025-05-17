@@ -39,7 +39,7 @@ const MemberImageUpload: React.FC<MemberImageUploadProps> = ({
         const formData = new FormData();
         formData.append("image", file);
 
-        const response = await fetch("http://localhost:5000/upload-image", {
+        const response = await fetch("https://oma-backend-1.onrender.com/upload-image", {
           method: "POST",
           body: formData,
         });

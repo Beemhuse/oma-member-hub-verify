@@ -15,8 +15,7 @@ export const uploadSignature = async (
   formData.append("image", file);
 
   const response = await fetch(
-    // "https://oma-backend-1.onrender.com/upload-image",
-    "http://localhost:5000/upload-image",
+    "https://oma-backend-1.onrender.com/upload-image",
     {
       method: "POST",
       body: formData,
