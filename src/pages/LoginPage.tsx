@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,8 +45,8 @@ const LoginPage: React.FC = () => {
   method: "POST",
   url: "/api/auth/login",
   onSuccess: (data) => {
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("isAuthenticated", "true");
+    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("isAuthenticated", "true");
     toast({
       title: "Login successful",
       description: "Welcome back!",
@@ -116,10 +116,11 @@ const onSubmit = (values: FormValues) => {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex  flex-col justify-center">
           <p className="text-sm text-muted-foreground">
             OMA Member Hub Admin Portal
           </p>
+          <Link to={"/signup"} className='text-blue-800 underline'>Signup</Link>
         </CardFooter>
       </Card>
     </div>

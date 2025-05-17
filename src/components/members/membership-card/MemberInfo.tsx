@@ -16,10 +16,13 @@ export const MemberInfo: React.FC<MemberInfoProps> = ({
   dateJoined,
 }) => {
   return (
+    <div className="">
     <div>
       <h3 className="font-bold text-lg">{firstName} {lastName}</h3>
       <p className="text-gray-600 text-sm">ID: {membershipId}</p>
       <p className="text-gray-500 text-xs mt-1">Member since: {formatDate(dateJoined)}</p>
+    </div>
+
     </div>
   );
 };

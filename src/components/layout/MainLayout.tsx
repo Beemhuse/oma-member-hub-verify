@@ -13,7 +13,7 @@ const MainLayout: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
-    const auth = localStorage.getItem('isAuthenticated');
+    const auth = sessionStorage.getItem('isAuthenticated');
     if (auth !== 'true' && location.pathname !== '/login') {
       toast({
         title: "Authentication required",
@@ -27,7 +27,7 @@ const MainLayout: React.FC = () => {
   }, [location.pathname, navigate, toast]);
   
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('isAuthenticated');
     toast({
       title: "Logged out",
       description: "You have been logged out successfully",

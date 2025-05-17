@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -129,10 +129,13 @@ const SignupPage: React.FC = () => {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col justify-center">
           <p className="text-sm text-muted-foreground">
             OMA Member Hub Admin Portal
           </p>
+          <Link to={"/login"} className="text-blue-800 underline">
+            Login
+          </Link>
         </CardFooter>
       </Card>
     </div>

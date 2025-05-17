@@ -51,6 +51,7 @@ const formSchema = z.object({
     .min(5, { message: "Address must be at least 5 characters" }),
   membershipStatus: z.enum(["Active", "Inactive", "Pending"]),
   dateOfBirth: z.string().optional(),
+  dateJoined: z.string().optional(),
   role: z.string().optional(),
   occupation: z.string().optional(),
   emergencyContact: z.string().optional(),
@@ -70,6 +71,7 @@ interface MemberRequest {
   address: string;
   membershipStatus: "Active" | "Inactive" | "Pending";
   dateOfBirth: string; // Optional field
+  dateJoined: string; // Optional field
   occupation: string; // Optional field
   emergencyContact: string; // Optional field
   image: string; // Optional field
@@ -83,6 +85,7 @@ interface MemberResponse {
   address: string;
   membershipStatus: "Active" | "Inactive" | "Pending";
   dateOfBirth?: string;
+  dateJoined: string;
   occupation?: string;
   emergencyContact?: string;
   token: string; // As shown in your onSuccess handler
@@ -169,6 +172,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
       role: data.role,
       membershipStatus: data.membershipStatus,
       dateOfBirth: data.dateOfBirth || undefined,
+      dateJoined: data.dateJoined || undefined,
       occupation: data.occupation || undefined,
       emergencyContact: data.emergencyContact || undefined,
       image: imageUrl,
@@ -179,8 +183,8 @@ const MemberForm: React.FC<MemberFormProps> = ({
       });
     } else {
       createOrUpdateMember(apiData);
+      // navigate("/members");
     }
-    navigate("/members")
     // console.log(apiData);
   };
   const form = useForm<FormValues>({
@@ -195,6 +199,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
       role: "",
       membershipStatus: "Active",
       dateOfBirth: "",
+      dateJoined: "",
       occupation: "",
       emergencyContact: "",
     },
@@ -448,18 +453,17 @@ const MemberForm: React.FC<MemberFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="occupation"
+                name="dateJoined"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Occupation</FormLabel>
+                    <FormLabel>Date Joined</FormLabel>
                     <FormControl>
-                      <Input placeholder="Software Engineer" {...field} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="dateOfBirth"
@@ -474,20 +478,34 @@ const MemberForm: React.FC<MemberFormProps> = ({
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name="emergencyContact"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Emergency Contact</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Name: +1234567890" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="occupation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Occupation</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Software Engineer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="emergencyContact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Emergency Contact</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Name: +1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}

@@ -10,8 +10,8 @@ export interface Member {
   membershipId: string;
   _createdAt: string;
   membershipStatus: 'Active' | 'Inactive' | 'Pending';
-  photo?: string;
   dateOfBirth?: string;
+  dateJoined?: string;
   occupation?: string;
   emergencyContact?: string;
   image: null;
@@ -31,6 +31,7 @@ export interface IMember {
   membershipStatus: 'Active' | 'Inactive' | 'Pending';
   image?: string;
   dateOfBirth?: string;
+  dateJoined?: string;
   occupation?: string;
   emergencyContact?: string;
   role?: 'member' | 'admin' | 'staff' | 'executive';
@@ -42,7 +43,8 @@ export interface ICard {
   fullName: string,
   email: string,
   membershipStatus: boolean;
-  qrCodeUrl: string
+  qrCodeUrl: string;
+  isActive: boolean
 }
 export interface MemberDetails {
   member: Member,
@@ -69,6 +71,7 @@ export interface Members {
   occupation: string;
   emergencyContact: string;
   dateOfBirth: string;
+  dateJoined: string;
   membershipStatus: 'Active' | 'Inactive' | 'Suspended' | string; // You can tighten this enum if needed
   card: MemberCard;
   role: string;

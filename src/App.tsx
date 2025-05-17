@@ -17,8 +17,9 @@ import SignupPage from "./pages/Signup";
 import TransactionDetailPage from "./pages/TransactionDetailPage";
 import AddSignaturePage from "./pages/AddSignature";
 import { useState } from "react";
+import api from "./lib/axios";
 
-
+// api()
 const App = () => {
     const [refreshKey, setRefreshKey] = useState(Date.now());
 

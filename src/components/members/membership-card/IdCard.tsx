@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { toast } from "@/hooks/use-toast";
 const waitForImagesToLoad = (element) => {
   const images = element.querySelectorAll("img");
   const promises = [];
@@ -26,6 +27,12 @@ const IDCard = ({ member, card, signature }) => {
   const backRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const handleSendPDF = async () => {
+    if (!card.isActive) {
+      toast({
+        title: "Card is inactive",
+      });
+      return;
+    }
     try {
       const doc = new jsPDF({
         orientation: "landscape",
@@ -82,7 +89,7 @@ const IDCard = ({ member, card, signature }) => {
         `${member?.firstName}_${member?.lastName}_IDCard.pdf`
       );
       // await fetch("http://localhost:5000/upload-id", {
-        await fetch("https://oma-backend-1.onrender.com/upload-id", {
+      await fetch("https://oma-backend-1.onrender.com/upload-id", {
         method: "POST",
         body: formData,
       });
@@ -139,24 +146,22 @@ const IDCard = ({ member, card, signature }) => {
     }
   };
 
-  const admin = {
-    signature: null,
-  };
   return (
     <div className="">
       <div className=" border w-full ">
         {/* Card Container */}
         <div className="flex justify-between">
           <button
+            disabled={!card.isActive}
             onClick={handleDownloadPDF}
-            className="font-bold border border-red-800 bg-red-800 text-white p-2 rounded-sm py-1"
+            className="font-bold border bg-yellow-600 text-white p-2 disabled:bg-gray-500 rounded-sm py-1"
           >
             Download Card
           </button>
           <button
-            disabled={loading}
+            disabled={loading || card.isActive === false}
             onClick={handleSendPDF}
-            className="font-bold border border-green-800 bg-green-800 text-white  p-2 rounded-sm py-1"
+            className="font-bold border border-green-800 bg-green-800 disabled:bg-gray-500 text-white  p-2 rounded-sm py-1"
           >
             {loading ? "Loading" : "Send Card to user"}
           </button>
@@ -247,15 +252,14 @@ const IDCard = ({ member, card, signature }) => {
               <div className="flex justify-center gap-10 items-center">
                 <div className="text-center flex flex-col items-center p-5 border border-gray-500 w-[50%]">
                   <p className="text-sm font-medium mb-1">SIGNATURE</p>
-                  {
-                    signature ? 
+                  {signature ? (
                     <img
                       src={signature}
                       alt="Oma signature"
                       className="w-32 "
                       crossOrigin="anonymous"
-                    /> : null
-                  }
+                    />
+                  ) : null}
                 </div>
                 <img
                   src={card?.qrCodeUrl}
@@ -286,14 +290,15 @@ const IDCard = ({ member, card, signature }) => {
       <div className="flex justify-between mt-10">
         <button
           onClick={handleDownloadPDF}
-          className="font-bold border border-red-800 bg-red-800 text-white p-2 rounded-sm py-1"
+          disabled={!card.isActive}
+          className="font-bold bg-yellow-600 text-white p-2 rounded-sm py-1 disabled:bg-gray-500 "
         >
           Download Card
         </button>
         <button
           onClick={handleSendPDF}
-          disabled={loading}
-          className="font-bold border border-green-800 bg-green-800 text-white  p-2 rounded-sm py-1"
+          disabled={loading || !card.isActive}
+          className="font-bold border border-green-800 bg-green-800 disabled:bg-gray-500 text-white  p-2 rounded-sm py-1"
         >
           {loading ? "Loading" : "Send Card to user"}{" "}
         </button>

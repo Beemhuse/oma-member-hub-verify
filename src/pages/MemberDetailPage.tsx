@@ -34,8 +34,14 @@ import LoadingPage from "@/components/Loading";
 interface SignatureUploadResponse {
   signatureId: string;
   signatureUrl: string;
-  
 }
+const getBadgeStatusColor = (isActive: boolean | undefined) => {
+  if (isActive === undefined) return ""; // handle undefined case
+
+  return isActive
+    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+};
 const getBadgeColor = (status: string) => {
   switch (status) {
     case "Active":
@@ -56,10 +62,10 @@ const MemberDetailPage: React.FC = () => {
     url: `/api/members/${id}`,
     shouldFetch: !!id,
   });
-  const { data: signature, isLoading:signatureLoading } = useApiQuery<SignatureUploadResponse>({
+  const { data: signature } = useApiQuery<SignatureUploadResponse>({
     url: `/signature`,
   });
-  console.log(signature)
+  console.log(data);
 
   const { mutate: generateId, isMutating } = useApiMutation({
     method: "POST",
@@ -70,9 +76,8 @@ const MemberDetailPage: React.FC = () => {
         title: "Successful",
         description: "Id generated!",
       });
-      mutate()
+      mutate();
       navigate(".", { replace: true, state: { key: Date.now() } });
-      
     },
     onError: (error) => {
       toast({
@@ -91,9 +96,8 @@ const MemberDetailPage: React.FC = () => {
         title: "Successful",
         description: "User Deleted!",
       });
-      mutate()
-      navigate("/members")
-
+      mutate();
+      navigate("/members");
     },
     onError: (error) => {
       toast({
@@ -266,7 +270,7 @@ const MemberDetailPage: React.FC = () => {
               <CardHeader>
                 <CardTitle>Membership Info</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex justify-between">
                 <div className="space-y-6">
                   <div>
                     <p className="text-sm text-gray-500">Membership ID</p>
@@ -292,6 +296,16 @@ const MemberDetailPage: React.FC = () => {
                     </Badge>
                   </div>
                 </div>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Id Status</p>
+                    <Badge
+                      className={getBadgeStatusColor(data?.card?.isActive)}
+                    >
+                      {data?.card?.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -301,7 +315,12 @@ const MemberDetailPage: React.FC = () => {
           <div className="max-w-2xl mx-auto flex flex-col items-center gap-6">
             {data?.card ? (
               <>
-                <MembershipCard member={data?.member} mutate={mutate} card={data?.card} signature={signature?.signatureUrl} />
+                <MembershipCard
+                  member={data?.member}
+                  mutate={mutate}
+                  card={data?.card}
+                  signature={signature?.signatureUrl}
+                />
               </>
             ) : (
               <div className="text-center">

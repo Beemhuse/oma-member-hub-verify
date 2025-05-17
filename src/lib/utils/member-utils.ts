@@ -36,3 +36,26 @@ export const createMember = (memberData: Omit<Member, 'id' | 'membershipId' | 'd
     ...memberData
   };
 };
+
+type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'role-asc' | 'role-desc';
+
+export const sortMembers = (members: Members[], sortBy: SortOption): Members[] => {
+  return [...members].sort((a, b) => {
+    switch (sortBy) {
+      case 'name-asc':
+        return a.firstName.localeCompare(b.firstName);
+      case 'name-desc':
+        return b.firstName.localeCompare(a.firstName);
+      case 'date-asc':
+        return new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime();
+      case 'date-desc':
+        return new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime();
+      case 'role-asc':
+        return (a.role || '').localeCompare(b.role || '');
+      case 'role-desc':
+        return (b.role || '').localeCompare(a.role || '');
+      default:
+        return 0;
+    }
+  });
+};

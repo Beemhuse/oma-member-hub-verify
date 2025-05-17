@@ -63,7 +63,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Joined:</span>
-              <span className="text-gray-700">{formatDate(member._createdAt)}</span>
+              <span className="text-gray-700">{formatDate(member.dateJoined)}</span>
             </div>
           </div>
           
