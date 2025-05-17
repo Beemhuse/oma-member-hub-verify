@@ -93,6 +93,10 @@ const IDCard = ({ member, card, signature }) => {
         method: "POST",
         body: formData,
       });
+      toast({
+        title: "Card sent to user email",
+        description: "Message delivered to user",
+      });
       setLoading(false);
       // doc.save(`${member?.firstName}_ID_Card.pdf`);
     } catch (error) {
@@ -184,10 +188,10 @@ const IDCard = ({ member, card, signature }) => {
               src={member?.image}
               crossOrigin="anonymous"
               alt="User picture"
-              className="rounded-full absolute top-[70px] w-[26%] h-[175px] object-cover left-[48px]"
+              className="rounded-full absolute top-[70px] w-[26%] h-[175px] object-cover aspect-square left-[46px]"
             />
             <div className="absolute top-[35%] left-[35%]">
-              <h1 className="text-3xl w-96 font-bold text-green-500">
+              <h1 className="text-2xl w-80 font-bold text-green-500">
                 {member?.firstName} {member?.lastName}{" "}
               </h1>
               <h2 className="text-xl">{member?.country}</h2>
@@ -205,13 +209,20 @@ const IDCard = ({ member, card, signature }) => {
                   </div>
                 </div>
                 <div className="col-span-2 space-y-4">
-                  <div className="">
-                    <h2 className="font-bold">Email:</h2>
-                    <p>{member?.email}</p>
+                  <div className="w-56">
+                    <h2 className="font-bold">Role:</h2>
+                    <p className="text-sm  text-wrap ">
+                        {member?.role
+                        ?.split("_")
+                        .map(
+                          (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </p>
                   </div>
                   <div className=" col-span-2">
                     <h2 className="font-bold">Expires:</h2>
-                    <p>{formatDate(card?.expiryDate)}</p>
+                    <p className="text-sm">{formatDate(card?.expiryDate)}</p>
                   </div>
                 </div>
               </div>
@@ -283,8 +294,6 @@ const IDCard = ({ member, card, signature }) => {
             </div>
           </div>
         </div>
-
-        {/* Buttons */}
       </div>
 
       <div className="flex justify-between mt-10">

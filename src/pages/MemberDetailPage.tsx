@@ -65,13 +65,11 @@ const MemberDetailPage: React.FC = () => {
   const { data: signature } = useApiQuery<SignatureUploadResponse>({
     url: `/signature`,
   });
-  console.log(data);
 
   const { mutate: generateId, isMutating } = useApiMutation({
     method: "POST",
     url: `/api/members/${id}/generate-card`,
     onSuccess: (data) => {
-      console.log(data);
       toast({
         title: "Successful",
         description: "Id generated!",
@@ -91,7 +89,6 @@ const MemberDetailPage: React.FC = () => {
     method: "DELETE",
     url: `/api/members/${id}/`,
     onSuccess: (data) => {
-      console.log(data);
       toast({
         title: "Successful",
         description: "User Deleted!",
@@ -297,6 +294,11 @@ const MemberDetailPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Membership Role</p>
+                  
+                    <span className="capitalize">{data?.member?.role}</span>
+                  </div>
                   <div>
                     <p className="text-sm text-gray-500">Id Status</p>
                     <Badge

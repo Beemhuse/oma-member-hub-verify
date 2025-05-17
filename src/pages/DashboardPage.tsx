@@ -122,7 +122,6 @@ const DashboardPage: React.FC = () => {
     name: item.month,
     value: item.count
   })) || [];
-console.log(monthlyData)
   // Format transaction data
   const transactionData = dashboardData?.monthlyTransactions?.map(item => ({
     name: item.month,

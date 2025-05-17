@@ -12,8 +12,7 @@ const EditMemberPage: React.FC = () => {
   const { data, isLoading, error } = useApiQuery<MemberDetails>({
     url: `/api/members/${id}`,
   });
-  // console.log(member)
-const member = data?.member
+  const member = data?.member
   // Update member mutation
   const { mutate: updateMember, isMutating } = useApiMutation<Member, Partial<Member>>({
     method: "PATCH",
@@ -85,6 +84,9 @@ const member = data?.member
           address: member.address,
           membershipStatus: member.membershipStatus,
           dateOfBirth: member.dateOfBirth,
+          dateJoined: member.dateJoined,
+          image: member.image,
+          country: member.country,
           occupation: member.occupation,
           emergencyContact: member.emergencyContact,
           role: member.role,

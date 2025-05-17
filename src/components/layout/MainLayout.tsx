@@ -5,6 +5,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupCon
 import { User, Users, Barcode, UserPlus, LogOut, LayoutDashboard, ChartBar, UploadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { TimeBasedGreeting } from './TimeBasedGreeting';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -150,43 +151,46 @@ const MainLayout: React.FC = () => {
           </div>
         </Sidebar>
         
-        <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-          <header className="bg-white border-b px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center">
-              <SidebarTrigger>
-                <Button variant="ghost" size="icon" className="mr-2 text-oma-black">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                  </svg>
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SidebarTrigger>
-              <h1 className="text-xl font-semibold text-gray-800">Member Hub</h1>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
-                Admin Mode
-              </span>
-            </div>
-          </header>
-          
-          <main className="flex-1 overflow-auto bg-gray-50 p-4 md:p-6">
-            <Outlet />
-          </main>
-        </div>
+       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+  <header className="bg-white border-b px-4 py-3 flex items-center justify-between">
+    <div className="flex items-center">
+      <SidebarTrigger>
+        <Button variant="ghost" size="icon" className="mr-2 text-oma-black">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SidebarTrigger>
+      <div className="flex items-center gap-3">
+        <TimeBasedGreeting />
+        <h1 className="text-xl font-semibold text-gray-800">Member Hub</h1>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+        Admin Mode
+      </span>
+    </div>
+  </header>
+  
+  <main className="flex-1 overflow-auto bg-gray-50 p-4 md:p-6">
+    <Outlet />
+  </main>
+</div>
       </div>
     </SidebarProvider>
   );
