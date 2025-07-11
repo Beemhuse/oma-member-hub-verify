@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   SidebarProvider,
   Sidebar,
@@ -9,7 +9,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
-  User,
   Users,
   Barcode,
   UserPlus,
@@ -24,7 +23,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isLoading, logout } = useAuth();
 
   if (isLoading) {
     return (
@@ -33,11 +32,7 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
-  console.log(logout)
-
-  // if (!isAuthenticated) {
-  //   return <Navigate to={"/"} />;
-  // }
+  console.log(logout);
 
   return (
     <SidebarProvider>
@@ -138,7 +133,7 @@ const MainLayout: React.FC = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                onClick={logout}
+                onClick={() => logout()}
               >
                 <LogOut size={18} className="mr-2" />
                 Logout

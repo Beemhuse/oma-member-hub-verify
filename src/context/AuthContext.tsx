@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Cookies } from 'react-cookie';
@@ -24,16 +23,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   
   useEffect(() => {
-    // Check authentication status on initial load
     const authStatus = cookies.get("auth") === 'true';
     setIsAuthenticated(authStatus);
     setIsLoading(false);
   }, []);
 
   const login = (redirectPath: string = '/dashboard') => {
-    cookies.set('auth', 'true', { path: '/', maxAge: 86400 }); // Expires in 1 day
+    cookies.set('auth', 'true', { path: '/', maxAge: 86400 }); 
     setIsAuthenticated(true);
-    return redirectPath; // Return the path to redirect to
+    return redirectPath; 
   };
 
   const logout = () => {
