@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useApiMutation } from '@/hooks/useApi';
+import { Cookies, useCookies } from 'react-cookie';
 
 type LoginRequest = {
   email: string;
@@ -29,6 +30,8 @@ type FormValues = z.infer<typeof formSchema>;
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const cookies = new Cookies() 
+    // const [cookies, setCookie, removeCookie] = useCookies(['auth', 'oma-token']);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -45,8 +48,9 @@ const LoginPage: React.FC = () => {
   method: "POST",
   url: "/api/auth/login",
   onSuccess: (data) => {
-    sessionStorage.setItem("oma-token", data.token);
-    sessionStorage.setItem("isAuthenticated", "true");
+       cookies.set('oma-token', data.token, { path: '/', maxAge: 86400 }); // Expires in 1 day
+       cookies.set('auth', 'true', { path: '/', maxAge: 86400 }); // Expires in 1 day
+   
     toast({
       title: "Login successful",
       description: "Welcome back!",
