@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
   method: "POST",
   url: "/api/auth/login",
   onSuccess: (data) => {
-    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("oma-token", data.token);
     sessionStorage.setItem("isAuthenticated", "true");
     toast({
       title: "Login successful",
