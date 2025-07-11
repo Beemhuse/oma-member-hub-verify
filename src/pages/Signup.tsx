@@ -67,9 +67,10 @@ const SignupPage: React.FC = () => {
       navigate("/dashboard");
     },
     onError: (error) => {
+      const errMsg = error?.response?.data?.message
       toast({
         title: "Signup failed",
-        description: "Invalid email or password",
+        description: errMsg,
         variant: "destructive",
       });
     },
@@ -123,7 +124,7 @@ const SignupPage: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <Button loading={isMutating} type="submit" className="w-full">
                 Signup
               </Button>
             </form>

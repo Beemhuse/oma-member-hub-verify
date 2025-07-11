@@ -54,9 +54,11 @@ const LoginPage: React.FC = () => {
     navigate("/dashboard");
   },
   onError: (error) => {
+      const errMsg = error?.response?.data?.message
+
     toast({
-      title: "Signup failed",
-      description: "Invalid email or password",
+      title: "Signin failed",
+      description: errMsg || "Failed",
       variant: "destructive",
     });
   },
