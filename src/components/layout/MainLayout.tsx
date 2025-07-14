@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   SidebarProvider,
   Sidebar,
@@ -19,12 +19,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimeBasedGreeting } from "./TimeBasedGreeting";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext"; // ✅ Make sure this path is correct
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
-  const { isLoading, logout } = useAuth();
+  const navigate = useNavigate();
+  const { isLoading, isAuthenticated, logout } = useAuth();
 
+  // ⛔ Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -32,7 +34,13 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
-  console.log(logout);
+
+  // 🔐 Redirect unauthenticated users
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   return (
     <SidebarProvider>
@@ -46,94 +54,23 @@ const MainLayout: React.FC = () => {
             <SidebarGroup>
               <SidebarGroupContent>
                 <div className="space-y-1 py-2">
-                  <NavLink
-                    to="/dashboard"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <LayoutDashboard size={18} />
-                    <span>Dashboard</span>
-                  </NavLink>
-                  <NavLink
-                    to="/members"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <Users size={18} />
-                    <span>Members</span>
-                  </NavLink>
-                  <NavLink
-                    to="/add-member"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <UserPlus size={18} />
-                    <span>Add Member</span>
-                  </NavLink>
-                  <NavLink
-                    to="/add-signature"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <UploadIcon size={18} />
-                    <span>Add Signature</span>
-                  </NavLink>
-                  <NavLink
-                    to="/verify"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <Barcode size={18} />
-                    <span>Verify ID</span>
-                  </NavLink>
-                  <NavLink
-                    to="/transactions"
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-md ${
-                        isActive
-                          ? "bg-oma-gold text-black font-medium"
-                          : "text-oma-gold hover:bg-oma-gold/10"
-                      }`
-                    }
-                  >
-                    <ChartBar size={18} />
-                    <span>Transactions</span>
-                  </NavLink>
+                  <SidebarLink to="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
+                  <SidebarLink to="/members" icon={<Users size={18} />} label="Members" />
+                  <SidebarLink to="/add-member" icon={<UserPlus size={18} />} label="Add Member" />
+                  <SidebarLink to="/add-signature" icon={<UploadIcon size={18} />} label="Add Signature" />
+                  <SidebarLink to="/verify" icon={<Barcode size={18} />} label="Verify ID" />
+                  <SidebarLink to="/transactions" icon={<ChartBar size={18} />} label="Transactions" />
                 </div>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
+
           <div className="mt-auto">
             <div className="px-3 py-2">
               <Button
                 variant="outline"
                 className="w-full justify-start text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                onClick={() => logout()}
+                onClick={logout} // ✅ Hooked to logout
               >
                 <LogOut size={18} className="mr-2" />
                 Logout
@@ -181,7 +118,6 @@ const MainLayout: React.FC = () => {
                 </h1>
               </div>
             </div>
-
             <div className="flex items-center gap-2">
               <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
                 Admin Mode
@@ -199,3 +135,20 @@ const MainLayout: React.FC = () => {
 };
 
 export default MainLayout;
+
+// 🧩 Sidebar link helper component
+const SidebarLink = ({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `flex items-center gap-3 px-3 py-2 rounded-md ${
+        isActive
+          ? "bg-oma-gold text-black font-medium"
+          : "text-oma-gold hover:bg-oma-gold/10"
+      }`
+    }
+  >
+    {icon}
+    <span>{label}</span>
+  </NavLink>
+);

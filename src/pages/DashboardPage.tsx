@@ -64,26 +64,13 @@ interface DashboardData {
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Fetch dashboard data from API
   const { data: dashboardData, isLoading, error } = useApiQuery<DashboardData>({
     url: '/dashboard',
   });
 
-  useEffect(() => {
-    const auth = localStorage.getItem('isAuthenticated');
-    if (auth !== 'true') {
-      navigate('/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [navigate]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
+ 
   if (isLoading) {
     return (
       <div className="container mx-auto py-6 flex justify-center">
