@@ -6,12 +6,14 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   logout: () => void;
+  refreshAuth: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   logout: () => {},
+  refreshAuth: () => {},
 });
 
 const cookies = new Cookies();
@@ -21,9 +23,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const refreshAuth = () => {
     const token = cookies.get('oma-token');
     setIsAuthenticated(!!token);
+  };
+
+  useEffect(() => {
+    refreshAuth();
     setIsLoading(false);
   }, []);
 
@@ -36,9 +42,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     window.location.href = '/login';
   };
-console.log(isAuthenticated)
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, logout, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );

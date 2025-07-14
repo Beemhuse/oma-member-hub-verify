@@ -25,6 +25,13 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoading, isAuthenticated, logout } = useAuth();
+console.log(isAuthenticated)
+  // 🔐 Redirect unauthenticated users
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   // ⛔ Loading state
   if (isLoading) {
@@ -34,13 +41,6 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
-
-  // 🔐 Redirect unauthenticated users
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/login");
-    }
-  }, [isLoading, isAuthenticated, navigate]);
 
   return (
     <SidebarProvider>
@@ -54,12 +54,36 @@ const MainLayout: React.FC = () => {
             <SidebarGroup>
               <SidebarGroupContent>
                 <div className="space-y-1 py-2">
-                  <SidebarLink to="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
-                  <SidebarLink to="/members" icon={<Users size={18} />} label="Members" />
-                  <SidebarLink to="/add-member" icon={<UserPlus size={18} />} label="Add Member" />
-                  <SidebarLink to="/add-signature" icon={<UploadIcon size={18} />} label="Add Signature" />
-                  <SidebarLink to="/verify" icon={<Barcode size={18} />} label="Verify ID" />
-                  <SidebarLink to="/transactions" icon={<ChartBar size={18} />} label="Transactions" />
+                  <SidebarLink
+                    to="/dashboard"
+                    icon={<LayoutDashboard size={18} />}
+                    label="Dashboard"
+                  />
+                  <SidebarLink
+                    to="/members"
+                    icon={<Users size={18} />}
+                    label="Members"
+                  />
+                  <SidebarLink
+                    to="/add-member"
+                    icon={<UserPlus size={18} />}
+                    label="Add Member"
+                  />
+                  <SidebarLink
+                    to="/add-signature"
+                    icon={<UploadIcon size={18} />}
+                    label="Add Signature"
+                  />
+                  <SidebarLink
+                    to="/verify"
+                    icon={<Barcode size={18} />}
+                    label="Verify ID"
+                  />
+                  <SidebarLink
+                    to="/transactions"
+                    icon={<ChartBar size={18} />}
+                    label="Transactions"
+                  />
                 </div>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -137,7 +161,15 @@ const MainLayout: React.FC = () => {
 export default MainLayout;
 
 // 🧩 Sidebar link helper component
-const SidebarLink = ({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) => (
+const SidebarLink = ({
+  to,
+  icon,
+  label,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+}) => (
   <NavLink
     to={to}
     className={({ isActive }) =>

@@ -32,25 +32,13 @@ import { useApiQuery } from "@/hooks/useApi";
 
 const TransactionsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentFilter, setCurrentFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const { data: transactions, isLoading } = useApiQuery<Transaction[]>({
     url: "/api/transactions",
   });
-  useEffect(() => {
-    const auth = localStorage.getItem("isAuthenticated");
-    if (auth !== "true") {
-      navigate("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [navigate]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
+ 
 
   // Filter transactions based on search term, status and type
   const filteredTransactions = transactions?.filter((transaction) => {

@@ -3,11 +3,14 @@ import App from "./App.tsx";
 import "./index.css";
 import SWRProvider from "./lib/swr-config.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
+import { CookiesProvider } from "react-cookie";
 
 createRoot(document.getElementById("root")!).render(
   <SWRProvider>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <CookiesProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </CookiesProvider>
   </SWRProvider>
 );
